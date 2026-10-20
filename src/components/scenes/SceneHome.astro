@@ -1,6 +1,7 @@
 ---
 /**
- * シーン4：エンディング。夜のすけおの家。上からランプのあたたかい光、葉っぱのハンモック。
+ * エンディング：夜のすけおの家。上からランプのあたたかい光。
+ * 葉っぱのハンモックは、すけおと一緒に置く（トップページの .relaxer。画面の形が変わってもずれないように）
  */
 import { heartLeaf, leaf, rng, sid } from './shapes';
 
@@ -37,11 +38,6 @@ const moss = Array.from({ length: 26 }, (_, i) => ({ x: i * 16 - 6 + r() * 8, y:
   <ellipse cx="195" cy="18" rx="40" ry="6" fill="#ffe2a8" opacity="0.9" filter={`url(#${id}-glow)`} />
 
   <g filter={`url(#${id}-far)`}>{sideLeaves.map((d, i) => <path d={d} fill={i % 2 ? '#2f4d40' : '#355748'} />)}</g>
-
-  <!-- 葉っぱのハンモック（すけおが寝そべる場所） -->
-  <path d="M40 470 C 120 520, 270 520, 350 470" fill="none" stroke="#6e5a40" stroke-width="3" />
-  <path d="M60 476 C 120 560, 270 560, 330 476 C 270 520, 120 520, 60 476 Z" fill="#4f8a5d" />
-  <path d="M74 482 C 140 534, 250 534, 316 482" fill="none" stroke="#6ea676" stroke-width="2" opacity="0.7" />
 
   <!-- 舞うほこり（ランプに照らされて光る） -->
   {specks.map((s) => <circle cx={s.x} cy={s.y} r={s.s} fill="#ffe7b8" opacity={s.o} filter={`url(#${id}-glow)`} />)}

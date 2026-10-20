@@ -47,7 +47,7 @@ const ideas = apps.length - details.length;
   </a>
 </header>
 
-<nav id="menu" class="menu" aria-label="メニュー" data-menu>
+<nav id="menu" class="menu" aria-label="メニュー" tabindex="-1" data-menu data-lenis-prevent>
   <!-- ヘッダーと同じ位置に置き、「メニュー」ボタンが「とじる」に変わったように見せる -->
   <div class="menu-bar">
     <a class="logo" href="/" data-menu-link aria-label={`${SITE.name}（トップへ）`}>
@@ -233,6 +233,8 @@ const ideas = apps.length - details.length;
     background: var(--cream);
     color: var(--ink);
     overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    outline: none;
   }
   .menu:target,
   .menu.is-open {

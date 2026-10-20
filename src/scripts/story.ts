@@ -152,9 +152,12 @@ if (motion) {
   // シーンの長さ：スクショが多いシーンは、そのぶん長くスクロールしてスクショを1枚ずつ見せる。
   // 最後のシーン以外は、すけおが次の場所へ歩いていくぶん（TAIL）も長くとる
   const TAIL = 50; // svh
+  // 着いてから次へ歩き出すまで、吹き出しを読めるだけとどまる長さ（スクショがあるシーンは、その切り替えの長さ）
+  const DWELL = 60; // svh
   sections.forEach((s, i) => {
     const shots = Number(s.dataset.shots ?? 0);
-    const extra = Math.max(0, shots - 1) * 32 + (i < sections.length - 1 ? TAIL : 0);
+    const stay = i === 0 || i === sections.length - 1 ? 0 : Math.max(DWELL, (shots - 1) * 32);
+    const extra = stay + (i < sections.length - 1 ? TAIL : 0);
     if (extra > 0) s.style.height = `calc(100svh + ${extra}svh)`;
   });
   sections.forEach((s) => {
@@ -241,18 +244,19 @@ if (motion) {
     let x: number;
     let bottom: number;
     let visible: number;
-    if (p < 0.5) {
+    // 右へ出ていったら、すぐ左から入ってくる（画面からいなくなる時間をほとんど作らない）
+    if (p < 0.47) {
       // 前のシーンから、右へ歩いて出ていく
       const startX = a ? a.x : -ww;
-      x = startX + (vw + 20 - startX) * range(p, a ? 0.03 : 0.08, 0.42);
+      x = startX + (vw + 20 - startX) * range(p, a ? 0.03 : 0.06, 0.46);
       bottom = a ? a.bottom : (b?.bottom ?? 16);
-      visible = a ? range(p, 0, 0.04) : range(p, 0.08, 0.12);
+      visible = a ? range(p, 0, 0.04) : range(p, 0.06, 0.08);
     } else {
       // 左から、次のシーンのすけおの場所まで歩いてくる
       const endX = b ? b.x : vw * 0.1;
-      x = -ww + (endX + ww) * range(p, 0.56, 0.94);
+      x = -ww + (endX + ww) * range(p, 0.47, 0.94);
       bottom = b ? b.bottom : 16;
-      visible = range(p, 0.55, 0.56) * (1 - range(p, 0.95, 1));
+      visible = 1 - range(p, 0.95, 1);
     }
     // 位置は目標だけ決めて、毎フレーム少しずつ近づける（下の follow）
     target = { x, bottom, visible, ww };

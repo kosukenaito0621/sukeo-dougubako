@@ -64,7 +64,10 @@ html.menu-is-open body {
 :focus-visible {
   outline: 3px solid var(--focus, #c8641f);
   outline-offset: 3px;
-  border-radius: 6px;
+}
+/* 指でタップしたあとに JS でフォーカスを移したときは、枠を出さない（src/scripts/menu.ts） */
+.no-ring:focus-visible {
+  outline: none;
 }
 
 .sr-only {

@@ -10,30 +10,41 @@ const opener = document.querySelector<HTMLAnchorElement>('[data-menu-open]');
 const closer = menu?.querySelector<HTMLAnchorElement>('[data-menu-close]');
 
 if (menu && opener && closer) {
+  /** 指で操作したときは、フォーカスを移しても枠を出さない（キーボードのときだけ枠を見せる） */
+  const quietFocus = (el: HTMLElement, byKey: boolean) => {
+    if (!byKey) {
+      el.classList.add('no-ring');
+      el.addEventListener('blur', () => el.classList.remove('no-ring'), { once: true });
+    }
+    el.focus({ preventScroll: true });
+  };
   const focusables = () => [...menu.querySelectorAll<HTMLElement>('a[href], button:not([disabled])')];
 
-  const open = () => {
+  /** byKey：キーボードで開いたとき（閉じるボタンにフォーカスを移して、枠を見せる） */
+  const open = (byKey = true) => {
     menu.classList.add('is-open');
     opener.setAttribute('aria-expanded', 'true');
     document.documentElement.classList.add('menu-is-open');
     document.dispatchEvent(new CustomEvent('menu:open'));
-    closer.focus();
+    if (byKey) closer.focus();
+    else menu.focus({ preventScroll: true });
   };
-  const close = (returnFocus = true) => {
+  const close = (returnFocus = true, byKey = true) => {
     menu.classList.remove('is-open');
     opener.setAttribute('aria-expanded', 'false');
     document.documentElement.classList.remove('menu-is-open');
     document.dispatchEvent(new CustomEvent('menu:close'));
-    if (returnFocus) opener.focus();
+    if (returnFocus) quietFocus(opener, byKey);
   };
 
   opener.addEventListener('click', (e) => {
     e.preventDefault();
-    open();
+    // キーボード（Enter）で押したクリックは detail が 0
+    open(e.detail === 0);
   });
   closer.addEventListener('click', (e) => {
     e.preventDefault();
-    close();
+    close(true, e.detail === 0);
   });
   // メニューの中のリンクを押したら閉じる（移動は通常どおり）
   menu.querySelectorAll<HTMLAnchorElement>('[data-menu-link]').forEach((a) => {

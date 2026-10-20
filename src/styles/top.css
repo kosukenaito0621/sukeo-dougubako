@@ -294,15 +294,29 @@ html.motion body {
   padding: 0;
   list-style: none;
 }
+/* スマホ：文字の下の空いたところの真ん中に、ハンモックごと置く */
 .ending-visual {
-  position: static;
+  min-height: 240px;
 }
 .relaxer {
   position: absolute;
+  top: 50%;
   left: 50%;
-  bottom: 38svh;
-  width: min(72vw, 300px);
-  transform: translateX(-50%);
+  width: min(84vw, 340px);
+  aspect-ratio: 340 / 230;
+  transform: translate(-50%, -50%);
+}
+.hammock {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.relax-on {
+  position: absolute;
+  left: 5.9%;
+  top: 17.4%;
+  width: 88.2%;
 }
 .relax-svg {
   width: 100%;
@@ -554,11 +568,9 @@ html.instant .ch {
     position: absolute;
   }
   .relaxer {
-    top: calc(11vh + 78vh * 0.62);
-    bottom: auto;
+    top: calc(11vh + 78vh * 0.55);
     left: calc(var(--panel-l) + var(--panel-w) / 2);
-    width: min(30vw, 400px);
-    transform: translate(-50%, -100%);
+    width: min(32vw, 420px);
   }
   .progress {
     right: 14px;
