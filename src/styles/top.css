@@ -207,12 +207,31 @@ html.motion body {
   left: 12px;
   bottom: calc(100% - 8px);
   width: max-content;
-  max-width: min(58vw, 240px);
+  max-width: min(66vw, 264px);
 }
 
 /* ============ 構想中（COMING SOON） ============ */
 .coming-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   margin-top: 6px;
+}
+/* スマホ：見出しの横の、小さなぼかしアイコン（シルエットで存在だけを見せる） */
+.coming-mini {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--scene-accent);
+  filter: blur(5px);
+  opacity: 0.8;
+}
+/* スマホは縦に収まりきらず吹き出しと重なるので、大きなカードは出さない（PC だけ） */
+@media (max-width: 959px) {
+  .coming-card {
+    display: none;
+  }
 }
 .coming-label {
   /* 明るい場面ではボタンの色（背景と十分なコントラスト）。暗いテラリウムでは下でアクセント色に */
@@ -295,16 +314,17 @@ html.motion body {
   list-style: none;
 }
 /* スマホ：文字の下の空いたところの真ん中に、ハンモックごと置く */
-.ending-visual {
-  min-height: 240px;
+/* スマホ：地面（画面の下から 1 割ちょっと）から、ほどよく浮かせて吊るす */
+.scene--ending .ending-visual {
+  position: static;
 }
 .relaxer {
   position: absolute;
-  top: 50%;
+  bottom: 19svh;
   left: 50%;
-  width: min(84vw, 340px);
+  width: min(78vw, 330px, 40svh);
   aspect-ratio: 340 / 230;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
 }
 .hammock {
   position: absolute;
@@ -567,7 +587,12 @@ html.instant .ch {
   .ending-visual {
     position: absolute;
   }
+  .coming-mini {
+    display: none;
+  }
   .relaxer {
+    bottom: auto;
+    transform: translate(-50%, -50%);
     top: calc(11vh + 78vh * 0.55);
     left: calc(var(--panel-l) + var(--panel-w) / 2);
     width: min(32vw, 420px);

@@ -106,6 +106,7 @@ const finished = apps.filter((a) => a.status !== '構想中');
                       {String(index).padStart(2, '0')} / {SCENES[app.scene as SceneKey].label}
                     </p>
                     <h2 class="coming-title" id={`title-${index}`}>
+                      <span class="coming-mini" aria-hidden="true" />
                       <span class="coming-label">
                         <Chars text="COMING SOON" />
                       </span>
@@ -119,7 +120,6 @@ const finished = apps.filter((a) => a.status !== '構想中');
                     <div class="coming-card reveal" aria-hidden="true">
                       <div class="coming-icon" />
                       <p class="coming-name">？？？？？？</p>
-                      <StatusBadge status={app.status} />
                     </div>
                     <div class="talker" data-stand>
                       <p class="bubble talker-bubble">

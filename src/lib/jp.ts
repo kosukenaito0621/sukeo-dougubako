@@ -17,11 +17,36 @@ const esc = (s: string) =>
 const len = (s: string) => [...s].length;
 
 /**
+ * BudouX が途中で切ってしまう言葉。ここにある言葉の中では改行しない。
+ * おかしな位置で改行される言葉を見つけたら、ここに足す。
+ */
+const KEEP_TOGETHER = ['もふもふ'];
+
+/** 言葉の途中にある区切りを消して、つなげなおす */
+function keepWords(list: string[]): string[] {
+  const text = list.join('');
+  const cut = new Set<number>(); // 消す区切りの位置（文の先頭からの文字数）
+  for (const word of KEEP_TOGETHER) {
+    for (let at = text.indexOf(word); at >= 0; at = text.indexOf(word, at + 1)) {
+      for (let k = at + 1; k < at + word.length; k++) cut.add(k);
+    }
+  }
+  const out: string[] = [];
+  let pos = 0;
+  for (const p of list) {
+    if (out.length > 0 && cut.has(pos)) out[out.length - 1] += p;
+    else out.push(p);
+    pos += p.length;
+  }
+  return out;
+}
+
+/**
  * 1行の文を、改行してよい区切りごとのかたまりに分ける。
  * 最後のかたまりは、短くなりすぎないよう前の文節とつなげてある。
  */
 export function phrases(text: string): string[] {
-  const list = parser.parse(text);
+  const list = keepWords(parser.parse(text));
   if (list.length === 0) return [];
   let tail = list.pop()!;
   while (list.length > 0 && len(tail) < TAIL_MIN && len(list[list.length - 1]! + tail) <= TAIL_MAX) {
