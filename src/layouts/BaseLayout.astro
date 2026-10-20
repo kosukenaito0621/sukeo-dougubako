@@ -1,0 +1,60 @@
+---
+/**
+ * 全ページ共通の枠（<head> の中身と、本文へのスキップリンク）。
+ * scene を渡すと、そのシーンの色（src/styles/tokens.css）でページを塗る。
+ */
+import '@fontsource/zen-maru-gothic/500.css';
+import '@fontsource/zen-maru-gothic/700.css';
+import '../styles/tokens.css';
+import '../styles/base.css';
+import { SITE, SITE_INDEXING } from '../site.config';
+
+interface Props {
+  /** ページ名（トップページでは省略） */
+  title?: string;
+  description?: string;
+  scene?: string;
+  /** <body> に付けるクラス */
+  bodyClass?: string;
+}
+const { title, description = SITE.description, scene = 'wall', bodyClass } = Astro.props;
+const fullTitle = title ? `${title}｜${SITE.name}` : `${SITE.name}｜${SITE.tagline}`;
+const canonical = new URL(Astro.url.pathname, SITE.url).href;
+const ogImage = new URL('/og.png', SITE.url).href;
+---
+
+<!doctype html>
+<html lang={SITE.lang} data-scene={scene}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    {!SITE_INDEXING && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#fbf6ec" />
+    <meta name="color-scheme" content="light" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <meta property="og:type" content={title ? 'article' : 'website'} />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${SITE.name}。クレステッドゲッコーのすけおがこちらを見ている絵`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <slot name="head" />
+  </head>
+  <body class={bodyClass}>
+    <a class="skip-link" href="#main">本文へスキップ</a>
+    <slot />
+  </body>
+</html>

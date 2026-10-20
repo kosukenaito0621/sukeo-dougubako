@@ -1,0 +1,451 @@
+---
+// チェックポイント3の確認用（デザインボード）。公開前に削除する
+import '@fontsource/zen-maru-gothic/500.css';
+import '@fontsource/zen-maru-gothic/700.css';
+import '../styles/tokens.css';
+import { Image } from 'astro:assets';
+import Jp from '../components/Jp.astro';
+import SceneWall from '../components/scenes/SceneWall.astro';
+import SceneKitchen from '../components/scenes/SceneKitchen.astro';
+import SceneVeranda from '../components/scenes/SceneVeranda.astro';
+import SceneTerrarium from '../components/scenes/SceneTerrarium.astro';
+import SceneHome from '../components/scenes/SceneHome.astro';
+import SukeoFront from '../components/sukeo/SukeoFront.astro';
+import SukeoFace from '../components/sukeo/SukeoFace.astro';
+import SukeoRelax from '../components/sukeo/SukeoRelax.astro';
+import SukeoSide from '../components/sukeo/SukeoSide.astro';
+import SukeoWall from '../components/sukeo/SukeoWall.astro';
+import kondateIcon from '../assets/apps/kondate/icon.png';
+import kondateShot from '../assets/apps/kondate/01-home.webp';
+import plantyIcon from '../assets/apps/planty/icon.png';
+
+const L = (h: string) => {
+  const c = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+  return 0.2126 * c[0]! + 0.7152 * c[1]! + 0.0722 * c[2]!;
+};
+const ratio = (a: string, b: string) => {
+  const x = L(a);
+  const y = L(b);
+  return ((Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05)).toFixed(1);
+};
+
+const scenes = [
+  { key: 'wall', no: 0, name: '壁（オープニング）', bg: '#efe1cb', ink: '#3a2a1e', soft: '#6b5544', accent: '#e2a24a', button: '#8a5418', buttonInk: '#fffdf8', note: '朝の光がさしこむ漆喰の壁。はちみつ色' },
+  { key: 'kitchen', no: 1, name: 'キッチン（献立）', bg: '#f6dcc4', ink: '#3a2a1e', soft: '#6b5544', accent: '#e07a55', button: '#a8462a', buttonInk: '#fffdf8', note: 'トマトとテラコッタの暖色' },
+  { key: 'veranda', no: 2, name: 'ベランダ（植物）', bg: '#dde9cc', ink: '#2f3a24', soft: '#55623f', accent: '#8dba63', button: '#46702c', buttonInk: '#fffdf8', note: '若草色と、窓からの青空' },
+  { key: 'terrarium', no: 3, name: 'テラリウム（構想中）', bg: '#23463a', ink: '#f6efe2', soft: '#cddfcf', accent: '#8cc49a', button: '#f0c27a', buttonInk: '#2b2016', note: '深い緑。文字は明るく' },
+  { key: 'home', no: 4, name: 'すけおの家（エンディング）', bg: '#26352f', ink: '#f6efe2', soft: '#d9cfbf', accent: '#f3c47f', button: '#f3c47f', buttonInk: '#2b2016', note: '夜。ランプのあかり' },
+];
+const base = [
+  { name: 'クリーム（土台）', hex: '#fbf6ec' },
+  { name: '紙（カード）', hex: '#fffdf8' },
+  { name: '焦げ茶（本文）', hex: '#3a2a1e' },
+  { name: '茶（補足文）', hex: '#6b5544' },
+  { name: '線', hex: '#e8dcc8' },
+  { name: 'すけお色', hex: '#e9a04e' },
+];
+const sample = '1週間の献立と買い物リストを、家族みんなで。料理に慣れていない日も、迷わず作れます。';
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>デザイン案</title>
+  </head>
+  <body>
+    <main class="board">
+      <header class="intro">
+        <p class="eyebrow">チェックポイント3</p>
+        <h1>デザイン案：すけおの暮らし道具箱</h1>
+        <p>
+          コンセプトは「すけおと歩く、ある一日の暮らし」。朝の壁から始まり、キッチン、窓辺、テラリウムを通って、夜のすけおの家で終わります。
+          シーンが進むと、背景の色も朝から夜へ少しずつ移っていきます。
+        </p>
+      </header>
+
+      <!-- 1. フォント -->
+      <section>
+        <h2>1. フォント（丸ゴシック・自前配信）</h2>
+        <div class="fonts">
+          <article class="font-card">
+            <p class="font-name">Zen Maru Gothic <span class="pick">決定</span></p>
+            <p class="font-h">暮らしを、楽に、豊かに。</p>
+            <p class="font-b"><Jp text={sample} /></p>
+            <p class="font-why"><Jp text="線がやわらかく、上品。本文が長くても疲れにくい。すけおの落ち着いた性格に合う。" /></p>
+          </article>
+        </div>
+        <p class="note"><Jp text="文字の大きさ：本文 17px（最小 16px）、行間 1.9。見出しは画面幅に合わせて 30〜48px。" /></p>
+      </section>
+
+      <!-- 2. 配色 -->
+      <section>
+        <h2>2. 配色</h2>
+        <h3>土台の色</h3>
+        <div class="swatches">
+          {
+            base.map((c) => (
+              <div class="swatch">
+                <span class="chip" style={`background:${c.hex}`} />
+                <span>{c.name}</span>
+                <code>{c.hex}</code>
+              </div>
+            ))
+          }
+        </div>
+        <h3>シーンごとの色（数字は文字と背景のコントラスト比。4.5 以上で読みやすさの基準を満たす）</h3>
+        <div class="scene-colors">
+          {
+            scenes.map((s) => (
+              <div class="scene-color" style={`background:${s.bg};color:${s.ink}`}>
+                <p class="sc-name">
+                  {s.no}　{s.name}
+                </p>
+                <p class="sc-note" style={`color:${s.soft}`}><Jp text={s.note} /></p>
+                <div class="sc-row">
+                  <span class="dot" style={`background:${s.accent}`} />
+                  <span class="btn-mini" style={`background:${s.button};color:${s.buttonInk}`}>
+                    体験版を試す
+                  </span>
+                </div>
+                <p class="sc-ratio" style={`color:${s.soft}`}>
+                  本文 {ratio(s.ink, s.bg)}　補足 {ratio(s.soft, s.bg)}　ボタン {ratio(s.buttonInk, s.button)}
+                </p>
+              </div>
+            ))
+          }
+        </div>
+      </section>
+
+      <!-- 3. 部品 -->
+      <section>
+        <h2>3. 部品</h2>
+        <div class="parts">
+          <div class="part">
+            <p class="part-label">ボタン（角丸・押すと少し沈む）</p>
+            <div class="row">
+              <a class="btn btn-primary" href="#" data-scene="kitchen">体験版を試す <span aria-hidden="true">↗</span></a>
+              <a class="btn btn-ghost" href="#" data-scene="kitchen">詳しく見る</a>
+            </div>
+          </div>
+          <div class="part">
+            <p class="part-label">ステータス</p>
+            <div class="row">
+              <span class="badge live">公開中</span>
+              <span class="badge dev">開発中</span>
+              <span class="badge idea">構想中</span>
+              <span class="badge soon">体験版準備中</span>
+            </div>
+          </div>
+          <div class="part">
+            <p class="part-label">すけおの吹き出し</p>
+            <div class="talk">
+              <SukeoFace class="talk-face" />
+              <p class="bubble"><Jp text="今日のごはん、決めよっか。" /></p>
+            </div>
+          </div>
+          <div class="part">
+            <p class="part-label">進み具合（シーン 0〜4）と前へ／次へ</p>
+            <div class="progress" aria-hidden="true">
+              <button class="arrow">↑</button>
+              {[0, 1, 2, 3, 4].map((n) => <span class:list={['pdot', { on: n === 1 }]}>{n}</span>)}
+              <button class="arrow">↓</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. スマホのラフ -->
+      <section>
+        <h2>4. シーンのラフ（スマホ・390×844 を縮小）</h2>
+        <div class="phones">
+          <div class="frame-wrap">
+            <div class="frame" data-scene="wall">
+              <SceneWall />
+              <div class="topbar"><span class="menu">☰</span></div>
+              <div class="op-title">
+                <p class="op-eyebrow">暮らしを、楽に、豊かに。</p>
+                <p class="op-name">すけおの<br />暮らし道具箱</p>
+              </div>
+              <SukeoWall class="op-sukeo" />
+              <p class="bubble op-bubble"><Jp text="おはよう。今日も、暮らしをちょっと楽にしにいこっか。" /></p>
+              <p class="scroll-hint">スクロールしてね ↓</p>
+            </div>
+            <p class="cap"><Jp text="0 壁：すけおが目を覚まし、壁をのぼって出発" /></p>
+          </div>
+
+          <div class="frame-wrap">
+            <div class="frame" data-scene="kitchen">
+              <SceneKitchen />
+              <div class="topbar"><span class="logo"><SukeoFace class="logo-face" />すけおの暮らし道具箱</span><span class="menu">☰</span></div>
+              <div class="app">
+                <Image src={kondateIcon} alt="" width={56} height={56} class="app-icon" />
+                <div>
+                  <span class="badge live">公開中</span>
+                  <p class="app-name">今日のごはん</p>
+                </div>
+              </div>
+              <p class="app-copy"><Jp text="1週間の献立と買い物リストを、家族みんなで。" /></p>
+              <div class="mock"><Image src={kondateShot} alt="今日のごはんのホーム画面" width={390} class="mock-img" /></div>
+              <div class="actions">
+                <a class="btn btn-primary" href="#">体験版を試す ↗</a>
+                <a class="btn btn-ghost" href="#">詳しく見る</a>
+              </div>
+              <SukeoFront pose="talk" class="app-sukeo" />
+              <p class="bubble app-bubble"><Jp text="今日のごはん、決めよっか。" /></p>
+            </div>
+            <p class="cap"><Jp text="1 キッチン：献立アプリ" /></p>
+          </div>
+
+          <div class="frame-wrap">
+            <div class="frame" data-scene="veranda">
+              <SceneVeranda />
+              <div class="topbar"><span class="logo"><SukeoFace class="logo-face" />すけおの暮らし道具箱</span><span class="menu">☰</span></div>
+              <div class="app">
+                <Image src={plantyIcon} alt="" width={56} height={56} class="app-icon" />
+                <div>
+                  <span class="badge live">公開中</span>
+                  <p class="app-name">Planty</p>
+                </div>
+              </div>
+              <p class="app-copy"><Jp text="植物を1株ずつ。水やりと成長の記録を残せる植物手帳。" /></p>
+              <div class="mock mock-empty"><Image src={plantyIcon} alt="" width={80} height={80} /><span><Jp text="体験版、じゅんび中" /></span></div>
+              <div class="actions">
+                <span class="btn btn-disabled">体験版準備中</span>
+                <a class="btn btn-ghost" href="#">詳しく見る</a>
+              </div>
+              <SukeoFront pose="talk" wink class="app-sukeo" />
+              <p class="bubble app-bubble"><Jp text="水やり、忘れてない？" /></p>
+            </div>
+            <p class="cap"><Jp text="2 窓辺：植物アプリ（体験版準備中）" /></p>
+          </div>
+
+          <div class="frame-wrap">
+            <div class="frame" data-scene="terrarium">
+              <SceneTerrarium />
+              <div class="topbar"><span class="logo"><SukeoFace class="logo-face" />すけおの暮らし道具箱</span><span class="menu">☰</span></div>
+              <div class="coming">
+                <div class="coming-icon" />
+                <p class="coming-label">COMING SOON</p>
+                <p class="coming-name">？？？？？</p>
+                <span class="badge idea">構想中</span>
+              </div>
+              <SukeoFront pose="sit" class="ter-sukeo" />
+              <p class="bubble ter-bubble"><Jp text="ぼくみたいな子のための道具、ただいま考え中。" /></p>
+            </div>
+            <p class="cap"><Jp text="3 テラリウム：構想中のアプリ（シルエット＋ぼかし）" /></p>
+          </div>
+
+          <div class="frame-wrap">
+            <div class="frame" data-scene="home">
+              <SceneHome />
+              <div class="topbar"><span class="logo"><SukeoFace class="logo-face" />すけおの暮らし道具箱</span><span class="menu">☰</span></div>
+              <div class="end">
+                <p class="end-title"><Jp text="今日も、おつかれさま。" /></p>
+                <p class="end-copy"><Jp text="道具箱は、これからも少しずつ増えていくよ。" /></p>
+              </div>
+              <SukeoRelax class="end-sukeo" />
+              <div class="end-links">
+                <a class="btn btn-primary" href="#">今日のごはん</a>
+                <a class="btn btn-ghost" href="#">Planty</a>
+              </div>
+            </div>
+            <p class="cap"><Jp text="4 すけおの家：葉っぱのハンモックでくつろぐ" /></p>
+          </div>
+        </div>
+        <p class="note">
+          スクロールに合わせて、すけおが横向きで歩いて次の場所へ移動し、背景がなめらかに入れかわります。右端に進み具合（0〜4）と前へ／次へを置きます（このラフでは省略）。
+        </p>
+      </section>
+
+      <!-- 5. PC のラフ -->
+      <section>
+        <h2>5. PC のラフ（1280×720 を縮小）</h2>
+        <div class="pc-wrap">
+          <div class="pc" data-scene="kitchen">
+            <div class="pc-top"><span class="logo"><SukeoFace class="logo-face" />すけおの暮らし道具箱</span><span class="menu">☰ メニュー</span></div>
+            <div class="pc-text">
+              <p class="pc-no">01 / キッチン</p>
+              <div class="app">
+                <Image src={kondateIcon} alt="" width={64} height={64} class="app-icon" />
+                <div><span class="badge live">公開中</span><p class="app-name">今日のごはん</p></div>
+              </div>
+              <p class="pc-copy"><Jp text="1週間の献立と買い物リストを、家族みんなで。料理に慣れていない日も、迷わず作れます。" /></p>
+              <div class="actions"><a class="btn btn-primary" href="#">体験版を試す ↗</a><a class="btn btn-ghost" href="#">詳しく見る</a></div>
+            </div>
+            <div class="pc-panel"><SceneKitchen /></div>
+            <div class="mock pc-mock"><Image src={kondateShot} alt="" width={390} class="mock-img" /></div>
+            <div class="pc-floor" />
+            <SukeoSide class="pc-sukeo" />
+            <div class="progress pc-progress" aria-hidden="true">
+              <button class="arrow">↑</button>
+              {[0, 1, 2, 3, 4].map((n) => <span class:list={['pdot', { on: n === 1 }]}>{n}</span>)}
+              <button class="arrow">↓</button>
+            </div>
+          </div>
+        </div>
+        <p class="note"><Jp text="PC では、左に文章、右に「絵本の1ページ」のような背景の絵を置き、すけおは画面の下を歩きます。" /></p>
+      </section>
+    </main>
+
+    <style is:global>
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--cream);
+        color: var(--ink);
+        font-family: var(--font);
+        font-size: var(--fs-body);
+        line-height: var(--lh-body);
+        font-weight: 500;
+      }
+      .board { max-width: 1320px; margin: 0 auto; padding: 32px 16px 96px; }
+      h1, h2, h3 { line-height: var(--lh-head); font-weight: 700; }
+      h1 { font-size: var(--fs-h1); margin: 4px 0 12px; }
+      h2 { font-size: var(--fs-h2); margin: 56px 0 16px; }
+      h3 { font-size: var(--fs-h3); margin: 24px 0 12px; }
+      .eyebrow { margin: 0; color: var(--sukeo-deep); font-weight: 700; }
+      .intro p:last-child { max-width: 46em; }
+      .note { color: var(--ink-soft); }
+      p, figcaption { text-wrap: pretty; }
+      h1, h2, h3 { text-wrap: balance; }
+
+      .fonts { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+      .font-card { background: var(--paper); border-radius: var(--r-l); padding: 24px; box-shadow: var(--shadow-s); }
+      .font-name { margin: 0; color: var(--ink-soft); }
+      .pick { display: inline-block; margin-left: 8px; padding: 0 10px; border-radius: var(--r-pill); background: var(--badge-live-bg); color: var(--badge-live-ink); font-size: 1rem; }
+      .font-h { font-size: 2rem; font-weight: 700; margin: 8px 0; line-height: 1.4; }
+      .font-b { margin: 0 0 12px; }
+      .font-why { margin: 0; color: var(--ink-soft); }
+
+      .swatches { display: flex; flex-wrap: wrap; gap: 12px; }
+      .swatch { display: grid; grid-template-columns: 36px auto; column-gap: 10px; align-items: center; background: var(--paper); border-radius: var(--r-m); padding: 10px 14px; box-shadow: var(--shadow-s); }
+      .swatch .chip { grid-row: span 2; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); }
+      .swatch code { color: var(--ink-soft); font-size: 1rem; }
+      .scene-colors { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+      .scene-color { border-radius: var(--r-l); padding: 18px 20px; }
+      .sc-name { margin: 0; font-weight: 700; }
+      .sc-note { margin: 0 0 10px; }
+      .sc-row { display: flex; align-items: center; gap: 10px; }
+      .dot { width: 28px; height: 28px; border-radius: 50%; }
+      .btn-mini { padding: 4px 14px; border-radius: var(--r-pill); font-weight: 700; }
+      .sc-ratio { margin: 10px 0 0; font-size: 1rem; }
+
+      .parts { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+      .part { background: var(--paper); border-radius: var(--r-l); padding: 20px; box-shadow: var(--shadow-s); }
+      .part-label { margin: 0 0 12px; color: var(--ink-soft); }
+      .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+      .btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+        min-height: 48px; padding: 0 22px; border-radius: var(--r-pill);
+        font-weight: 700; font-size: 1rem; text-decoration: none; white-space: nowrap;
+        transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+      }
+      .btn-primary { background: var(--scene-button); color: var(--scene-button-ink); box-shadow: 0 3px 0 rgb(0 0 0 / 0.18); }
+      .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 0 rgb(0 0 0 / 0.18); }
+      .btn-primary:active { transform: translateY(2px); box-shadow: 0 1px 0 rgb(0 0 0 / 0.18); }
+      .btn-ghost { background: rgb(255 253 248 / 0.85); color: var(--ink); box-shadow: inset 0 0 0 2px var(--line); }
+      .btn-disabled { background: var(--badge-soon-bg); color: var(--badge-soon-ink); }
+      .btn:focus-visible { outline: 3px solid var(--scene-accent); outline-offset: 3px; }
+
+      .badge { display: inline-block; padding: 0 12px; border-radius: var(--r-pill); font-weight: 700; font-size: 1rem; line-height: 1.9; }
+      .badge.live { background: var(--badge-live-bg); color: var(--badge-live-ink); }
+      .badge.dev { background: var(--badge-dev-bg); color: var(--badge-dev-ink); }
+      .badge.idea { background: var(--badge-idea-bg); color: var(--badge-idea-ink); }
+      .badge.soon { background: var(--badge-soon-bg); color: var(--badge-soon-ink); }
+
+      .talk { display: flex; align-items: flex-end; gap: 6px; }
+      .talk-face { width: 64px; height: 64px; flex: none; }
+      .bubble {
+        position: relative; margin: 0; padding: 10px 16px; background: var(--paper); color: var(--ink);
+        border-radius: 20px; box-shadow: var(--shadow-m); font-size: 1rem; line-height: 1.7;
+      }
+      .talk .bubble::before { content: ''; position: absolute; left: -7px; bottom: 14px; border: 7px solid transparent; border-right-color: var(--paper); border-left: 0; }
+
+      .progress { display: inline-flex; flex-direction: column; align-items: center; gap: 6px; padding: 6px; border-radius: var(--r-pill); background: rgb(255 253 248 / 0.8); box-shadow: var(--shadow-s); }
+      .pdot { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 1rem; color: var(--ink-soft); }
+      .pdot.on { background: var(--sukeo); color: #fff; font-weight: 700; }
+      .arrow { width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--paper); color: var(--ink); font: inherit; }
+
+      /* スマホのラフ */
+      .phones { display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(234px, 1fr)); }
+      .frame-wrap { width: 234px; }
+      .frame-wrap .frame { transform: scale(0.6); transform-origin: top left; margin-bottom: -337px; }
+      .cap { margin: 8px 0 0; color: var(--ink-soft); font-size: 1rem; }
+      .frame {
+        position: relative; width: 390px; height: 844px; overflow: hidden; border-radius: 36px;
+        background: var(--scene-bg); color: var(--scene-ink); box-shadow: var(--shadow-m);
+      }
+      .frame .scene-bg, .pc-panel .scene-bg { position: absolute; inset: 0; width: 100%; height: 100%; }
+      .topbar { position: absolute; top: 14px; left: 16px; right: 12px; display: flex; justify-content: space-between; align-items: center; }
+      .logo { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: 1rem; padding: 4px 12px 4px 4px; border-radius: var(--r-pill); background: rgb(255 253 248 / 0.8); color: var(--ink); }
+      .logo-face { width: 32px; height: 32px; }
+      .menu { margin-left: auto; display: grid; place-items: center; min-width: 44px; height: 44px; padding: 0 12px; border-radius: var(--r-pill); background: rgb(255 253 248 / 0.85); color: var(--ink); font-weight: 700; }
+
+      .op-title { position: absolute; top: 108px; left: 0; right: 0; text-align: center; }
+      .op-eyebrow { margin: 0; color: var(--scene-ink-soft); font-weight: 700; }
+      .op-name { margin: 4px 0 0; font-size: 2.6rem; line-height: 1.3; font-weight: 700; }
+      .op-sukeo { position: absolute; left: 120px; top: 330px; width: 150px; height: auto; }
+      .op-bubble { position: absolute; left: 40px; right: 40px; top: 548px; text-align: center; }
+      .scroll-hint { position: absolute; bottom: 70px; left: 0; right: 0; text-align: center; margin: 0; color: var(--scene-ink-soft); }
+
+      .app { position: absolute; top: 76px; left: 20px; right: 20px; display: flex; align-items: center; gap: 12px; }
+      .app-icon { width: 56px; height: 56px; border-radius: 16px; box-shadow: var(--shadow-s); }
+      .app-name { margin: 0; font-size: 1.6rem; font-weight: 700; line-height: 1.3; }
+      .app-copy { position: absolute; top: 148px; left: 20px; right: 20px; margin: 0; padding: 8px 14px; border-radius: var(--r-m); background: rgb(255 253 248 / 0.82); color: var(--ink); }
+      .mock { position: absolute; top: 292px; right: 24px; width: 160px; height: 340px; border-radius: 30px; background: #2b2016; padding: 7px; box-shadow: var(--shadow-m); }
+      .mock-img { width: 100%; height: 100%; object-fit: cover; object-position: top; border-radius: 24px; display: block; }
+      .mock-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; background: #f4efe4; border: 7px solid #2b2016; color: var(--badge-soon-ink); font-weight: 700; }
+      .mock-empty img { border-radius: 20px; filter: blur(1px) grayscale(0.2); opacity: 0.8; }
+      .actions { position: absolute; left: 20px; right: 20px; top: 222px; display: flex; gap: 10px; }
+      .actions .btn { flex: 1; }
+      .app-sukeo { position: absolute; left: -6px; top: 488px; width: 200px; height: auto; }
+      .app-bubble { position: absolute; left: 20px; top: 400px; max-width: 180px; }
+
+      .coming { position: absolute; top: 150px; left: 50px; right: 50px; padding: 28px 20px; text-align: center; border-radius: var(--r-l); background: rgb(255 255 255 / 0.08); backdrop-filter: blur(6px); }
+      .coming-icon { width: 84px; height: 84px; margin: 0 auto 12px; border-radius: 24px; background: #8cc49a; filter: blur(8px); opacity: 0.7; }
+      .coming-label { margin: 0; letter-spacing: 0.2em; font-weight: 700; color: var(--scene-accent); }
+      .coming-name { margin: 0 0 10px; font-size: 1.6rem; font-weight: 700; filter: blur(4px); }
+      .ter-sukeo { position: absolute; left: 70px; top: 520px; width: 240px; height: auto; }
+      .ter-bubble { position: absolute; left: 30px; right: 30px; top: 456px; }
+
+      .end { position: absolute; top: 110px; left: 20px; right: 20px; text-align: center; }
+      .end-title { margin: 0; font-size: 2rem; font-weight: 700; line-height: 1.4; }
+      .end-copy { margin: 8px 0 0; color: var(--scene-ink-soft); }
+      .end-sukeo { position: absolute; left: 60px; top: 404px; width: 270px; height: auto; }
+      .end-links { position: absolute; left: 30px; right: 30px; bottom: 120px; display: flex; gap: 10px; }
+      .end-links .btn { flex: 1; }
+
+      /* PC のラフ */
+      .pc-wrap { width: 100%; max-width: 1280px; aspect-ratio: 1280 / 720; overflow: hidden; border-radius: 24px; box-shadow: var(--shadow-m); }
+      .pc { position: relative; width: 1280px; height: 720px; transform-origin: top left; background: var(--scene-bg); color: var(--scene-ink); }
+      .pc-top { position: absolute; top: 20px; left: 32px; right: 32px; display: flex; align-items: center; }
+      .pc-text { position: absolute; left: 96px; top: 150px; width: 470px; }
+      .pc-text .app { position: static; }
+      .pc-text .app-icon { width: 64px; height: 64px; }
+      .pc-text .app-name { font-size: 2.4rem; }
+      .pc-no { margin: 0 0 12px; color: var(--scene-ink-soft); font-weight: 700; letter-spacing: 0.08em; }
+      .pc-copy { font-size: 1.15rem; margin: 20px 0 28px; }
+      .pc-text .actions { position: static; }
+      .pc-text .actions .btn { flex: none; }
+      .pc-panel { position: absolute; right: 120px; top: 80px; width: 480px; height: 560px; border-radius: 36px; overflow: hidden; box-shadow: var(--shadow-m); }
+      .pc-mock { top: 180px; right: 520px; width: 190px; height: 410px; }
+      .pc-floor { position: absolute; left: 0; right: 0; bottom: 0; height: 72px; background: #d9a877; }
+      .pc-sukeo { position: absolute; left: 600px; bottom: 30px; width: 230px; height: auto; }
+      .pc-progress { position: absolute; right: 28px; top: 50%; transform: translateY(-50%); }
+    </style>
+    <script>
+      // PC のラフを、枠の幅に合わせて縮小する
+      const fit = () => {
+        const wrap = document.querySelector<HTMLElement>('.pc-wrap');
+        const pc = document.querySelector<HTMLElement>('.pc');
+        if (wrap && pc) pc.style.transform = `scale(${wrap.clientWidth / 1280})`;
+      };
+      fit();
+      addEventListener('resize', fit);
+    </script>
+  </body>
+</html>

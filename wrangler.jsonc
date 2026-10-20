@@ -1,0 +1,14 @@
+{
+  // すけおの暮らし道具箱：Cloudflare Workers で静的ファイル（dist/）を配信する。サーバーの処理はない。
+  // ヘッダー（CSP など）は dist/_headers（ビルド時に src/security.ts から作られる）で付ける。
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "sukeo-dougubako",
+  "compatibility_date": "2026-10-18",
+  "assets": {
+    "directory": "./dist",
+    // 見つからないページは dist/404.html を返す
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash",
+  },
+  "observability": { "enabled": false },
+}

@@ -1,0 +1,213 @@
+/* すけおの暮らし道具箱：全ページ共通の見た目 */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--scene-bg);
+  color-scheme: light;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: var(--fs-body);
+  font-weight: 500;
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-weight: 700;
+  line-height: var(--lh-head);
+  text-wrap: balance;
+}
+
+p,
+li,
+dd,
+figcaption {
+  text-wrap: pretty;
+}
+
+p {
+  margin: 0;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+}
+
+/* メニューを開いている間は、うしろのページをスクロールさせない */
+html.menu-is-open,
+html.menu-is-open body {
+  overflow: hidden;
+}
+
+/* キーボードで操作したときのフォーカスを、はっきり見せる */
+:focus-visible {
+  outline: 3px solid var(--focus, #c8641f);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 100;
+  padding: 8px 16px;
+  border-radius: var(--r-pill);
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 700;
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+.skip-link:focus-visible {
+  transform: none;
+}
+
+/* ボタン：角丸。触れると少し浮き、押すと沈む */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 48px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: var(--r-pill);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.4;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    transform 0.18s cubic-bezier(0.3, 1.5, 0.6, 1),
+    box-shadow 0.18s ease,
+    background-color 0.18s ease;
+}
+.btn-primary {
+  background: var(--scene-button);
+  color: var(--scene-button-ink);
+  box-shadow: 0 3px 0 rgb(0 0 0 / 0.18);
+}
+.btn-ghost {
+  background: rgb(255 253 248 / 0.88);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 2px var(--line);
+}
+.btn-disabled {
+  background: var(--badge-soon-bg);
+  color: var(--badge-soon-ink);
+  cursor: default;
+}
+@media (hover: hover) {
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 0 rgb(0 0 0 / 0.18);
+  }
+  .btn-ghost:hover {
+    transform: translateY(-2px);
+    background: var(--paper);
+  }
+}
+.btn-primary:active,
+.btn-ghost:active {
+  transform: translateY(2px) scale(0.98);
+  box-shadow: 0 1px 0 rgb(0 0 0 / 0.18);
+}
+.btn .ext {
+  font-size: 0.9em;
+}
+
+/* ステータス */
+.badge {
+  display: inline-block;
+  padding: 0 12px;
+  border-radius: var(--r-pill);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.9;
+  white-space: nowrap;
+}
+.badge-live {
+  background: var(--badge-live-bg);
+  color: var(--badge-live-ink);
+}
+.badge-dev {
+  background: var(--badge-dev-bg);
+  color: var(--badge-dev-ink);
+}
+.badge-idea {
+  background: var(--badge-idea-bg);
+  color: var(--badge-idea-ink);
+}
+.badge-soon {
+  background: var(--badge-soon-bg);
+  color: var(--badge-soon-ink);
+}
+
+/* すけおの吹き出し */
+.bubble {
+  position: relative;
+  padding: 10px 18px;
+  border-radius: 22px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: var(--shadow-m);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+.bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -9px;
+  left: var(--tail-x, 36px);
+  border: 10px solid transparent;
+  border-top-color: var(--paper);
+  border-bottom: 0;
+}
+
+/* 「視差効果を減らす」がオンのときは、動きをほぼ止める */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

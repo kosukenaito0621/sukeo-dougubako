@@ -1,0 +1,42 @@
+---
+/** 見つからないページ（迷子のすけお） */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Jp from '../components/Jp.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SukeoFront from '../components/sukeo/SukeoFront.astro';
+---
+
+<BaseLayout title="ページが見つかりません" description="お探しのページは見つかりませんでした。" scene="wall" bodyClass="lost-page">
+  <SiteHeader />
+  <main id="main" class="lost">
+    <SukeoFront pose="lost" class="lost-svg" label="首をかしげて困っている、迷子のすけお" />
+    <h1 class="lost-title"><Jp text="あれれ、ここはどこだろう……" /></h1>
+    <p class="lost-copy"><Jp text="お探しのページは見つかりませんでした。すけおと一緒に、はじめの場所へ戻ろっか。" /></p>
+    <p><a class="btn btn-primary" href="/">トップへ戻る</a></p>
+  </main>
+  <SiteFooter />
+</BaseLayout>
+
+<style>
+  .lost {
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+    max-width: 640px;
+    min-height: 80svh;
+    margin: 0 auto;
+    padding: calc(84px + env(safe-area-inset-top)) 16px 24px;
+    text-align: center;
+  }
+  .lost-svg {
+    width: min(70vw, 320px);
+    height: auto;
+  }
+  .lost-title {
+    font-size: var(--fs-h2);
+  }
+  .lost-copy {
+    color: var(--ink-soft);
+  }
+</style>

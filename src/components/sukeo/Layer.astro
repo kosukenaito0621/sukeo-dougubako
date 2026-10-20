@@ -1,0 +1,41 @@
+---
+/**
+ * ひとまとまりの部位（例：頭＋首＋胴、手前の脚）。
+ * 中の形どうしの境目には線が出ず、まとまり全体の外側にだけ細い線とやわらかい陰影が付く。
+ * スロットに入れたもの（模様など）は、この部位の形で切り抜かれる。
+ */
+import Shapes from './Shapes.astro';
+import { uid, type Shape } from './parts';
+
+interface Props {
+  /** SoftDefs の id */
+  fx: string;
+  shapes: Shape[];
+  fill: string;
+  filter?: 'soft' | 'thin' | 'none';
+  part?: string;
+  /** 回す軸（SVG 全体の座標 "x y"） */
+  origin?: string;
+}
+const { fx, shapes, fill, filter = 'soft', part, origin } = Astro.props;
+const clip = uid();
+const hasDetail = Astro.slots.has('default');
+---
+
+<g data-part={part} data-origin={origin}>
+  <g filter={filter === 'none' ? undefined : `url(#${fx}-${filter})`}>
+    <Shapes shapes={shapes} fill={fill} />
+    {
+      hasDetail && (
+        <>
+          <clipPath id={clip}>
+            <Shapes shapes={shapes} />
+          </clipPath>
+          <g clip-path={`url(#${clip})`}>
+            <slot />
+          </g>
+        </>
+      )
+    }
+  </g>
+</g>

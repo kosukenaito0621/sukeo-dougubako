@@ -1,0 +1,55 @@
+---
+/**
+ * シーン4：エンディング。夜のすけおの家。上からランプのあたたかい光、葉っぱのハンモック。
+ */
+import { heartLeaf, leaf, rng, sid } from './shapes';
+
+const id = sid();
+const r = rng(21);
+const specks = Array.from({ length: 22 }, () => ({ x: r() * 390, y: 80 + r() * 560, s: 0.8 + r() * 1.6, o: 0.25 + r() * 0.5 }));
+const sideLeaves = [
+  heartLeaf(10, 300, 70, -10), heartLeaf(24, 370, 60, 20), heartLeaf(380, 420, 66, 190), heartLeaf(368, 480, 56, 160),
+  leaf(0, 640, 180, 34, -55), leaf(390, 620, 170, 32, -125),
+];
+const moss = Array.from({ length: 26 }, (_, i) => ({ x: i * 16 - 6 + r() * 8, y: 742 + r() * 12, rx: 14 + r() * 10, ry: 9 + r() * 6 }));
+---
+
+<svg viewBox="0 0 390 844" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="scene-bg">
+  <defs>
+    <linearGradient id={`${id}-bg`} x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2c3c35" />
+      <stop offset="1" stop-color="#1b2823" />
+    </linearGradient>
+    <radialGradient id={`${id}-lamp`} cx="0.5" cy="0" r="0.8">
+      <stop offset="0" stop-color="#f6c982" stop-opacity="0.55" />
+      <stop offset="0.45" stop-color="#f6c982" stop-opacity="0.16" />
+      <stop offset="1" stop-color="#f6c982" stop-opacity="0" />
+    </radialGradient>
+    <filter id={`${id}-far`} x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3" /></filter>
+    <filter id={`${id}-glow`} x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="1.6" /></filter>
+  </defs>
+
+  <rect width="390" height="844" fill={`url(#${id}-bg)`} />
+  <rect width="390" height="700" fill={`url(#${id}-lamp)`} />
+
+  <!-- 上のランプ -->
+  <rect x="150" y="0" width="90" height="16" rx="6" fill="#3a2f26" />
+  <ellipse cx="195" cy="18" rx="40" ry="6" fill="#ffe2a8" opacity="0.9" filter={`url(#${id}-glow)`} />
+
+  <g filter={`url(#${id}-far)`}>{sideLeaves.map((d, i) => <path d={d} fill={i % 2 ? '#2f4d40' : '#355748'} />)}</g>
+
+  <!-- 葉っぱのハンモック（すけおが寝そべる場所） -->
+  <path d="M40 470 C 120 520, 270 520, 350 470" fill="none" stroke="#6e5a40" stroke-width="3" />
+  <path d="M60 476 C 120 560, 270 560, 330 476 C 270 520, 120 520, 60 476 Z" fill="#4f8a5d" />
+  <path d="M74 482 C 140 534, 250 534, 316 482" fill="none" stroke="#6ea676" stroke-width="2" opacity="0.7" />
+
+  <!-- 舞うほこり（ランプに照らされて光る） -->
+  {specks.map((s) => <circle cx={s.x} cy={s.y} r={s.s} fill="#ffe7b8" opacity={s.o} filter={`url(#${id}-glow)`} />)}
+
+  <!-- 土と苔 -->
+  <rect x="0" y="752" width="390" height="92" fill="#33261c" />
+  {moss.map((m, i) => <ellipse cx={m.x} cy={m.y} rx={m.rx} ry={m.ry} fill={i % 3 ? '#41673b' : '#4d7745'} />)}
+
+  <rect x="2" y="0" width="6" height="844" fill="#ffffff" opacity="0.06" />
+  <rect x="382" y="0" width="6" height="844" fill="#ffffff" opacity="0.06" />
+</svg>

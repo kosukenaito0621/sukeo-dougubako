@@ -1,0 +1,26 @@
+---
+/** すけおの顔だけ（ファビコン・小さいアイコン用）。正方形 */
+import HeadFront from './HeadFront.astro';
+import SoftDefs from './SoftDefs.astro';
+import { uid } from './parts';
+
+interface Props {
+  label?: string;
+  class?: string;
+}
+const { label, class: className } = Astro.props;
+const fx = uid();
+---
+
+<svg
+  viewBox="-72 -75 144 144"
+  xmlns="http://www.w3.org/2000/svg"
+  class:list={['sukeo', 'sukeo--face', className]}
+  data-sukeo="face"
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
+>
+  <SoftDefs id={fx} />
+  <HeadFront fx={fx} ox={0} oy={2} />
+</svg>

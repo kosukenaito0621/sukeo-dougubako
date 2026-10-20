@@ -1,0 +1,90 @@
+---
+/**
+ * スマホの枠に入ったスクショ。複数あるときは重ねて置き、トップページではスクロールに合わせて切り替える。
+ * スクショがないときは、アイコンと「体験版、じゅんび中」を出す。
+ */
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+
+interface Props {
+  shots?: { src: ImageMetadata; alt: string }[] | undefined;
+  icon?: ImageMetadata | undefined;
+  class?: string;
+  /** 最初の1枚を先に読み込むか（画面の上の方にあるとき true） */
+  eager?: boolean;
+}
+const { shots = [], icon, class: className, eager = false } = Astro.props;
+---
+
+<div class:list={['phone', className]} data-phone>
+  <div class="phone-screen">
+    {
+      shots.length > 0 ? (
+        shots.map((s, i) => (
+          <Image
+            src={s.src}
+            alt={s.alt}
+            widths={[200, 300, 400]}
+            sizes="(min-width: 960px) 220px, 46vw"
+            class:list={['phone-shot', { 'is-on': i === 0 }]}
+            loading={eager && i === 0 ? 'eager' : 'lazy'}
+            data-shot={i}
+          />
+        ))
+      ) : (
+        <div class="phone-empty">
+          {icon && <Image src={icon} alt="" width={88} height={88} class="phone-empty-icon" />}
+          <p>体験版、じゅんび中</p>
+        </div>
+      )
+    }
+  </div>
+</div>
+
+<style>
+  .phone {
+    position: relative;
+    aspect-ratio: 390 / 844;
+    border-radius: 13% / 6%;
+    padding: 3.2%;
+    background: #2b2016;
+    box-shadow:
+      0 2px 4px rgb(58 42 30 / 0.12),
+      0 18px 40px rgb(58 42 30 / 0.22);
+  }
+  .phone-screen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 11% / 5.2%;
+    background: #f4efe4;
+  }
+  .phone-shot {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    opacity: 0;
+    transition: opacity 0.45s ease;
+  }
+  .phone-shot.is-on {
+    opacity: 1;
+  }
+  .phone-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    height: 100%;
+    color: var(--badge-soon-ink);
+    font-weight: 700;
+    text-align: center;
+  }
+  .phone-empty-icon {
+    border-radius: 22%;
+  }
+</style>

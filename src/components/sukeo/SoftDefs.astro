@@ -1,0 +1,69 @@
+---
+/**
+ * すけおの描き方の土台（フィルターとグラデーション）。SVG 1つにつき1回置く。
+ * - soft ：外側のシルエットだけに細い線を付け、下側にやわらかい影・上側にほのかな光を入れて丸みを出す
+ * - thin ：細い線と弱い影だけ（クレストや指など小さい部分）
+ * - blur ：模様のふちをぼかす
+ * - haze ：お腹・のどの明るい色を大きくぼかす
+ */
+import { C } from './parts';
+
+interface Props {
+  id: string;
+}
+const { id } = Astro.props;
+---
+
+<defs>
+  <filter id={`${id}-soft`} x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+    <feGaussianBlur in="SourceAlpha" stdDeviation="3.4" result="blur" />
+    <feOffset in="blur" dy="-3.6" result="up" />
+    <feComposite in="SourceAlpha" in2="up" operator="out" result="lowEdge" />
+    <feFlood flood-color="#7A3510" flood-opacity="0.4" />
+    <feComposite in2="lowEdge" operator="in" result="shade" />
+    <feOffset in="blur" dy="2.6" result="down" />
+    <feComposite in="SourceAlpha" in2="down" operator="out" result="topEdge" />
+    <feFlood flood-color="#FFEDC8" flood-opacity="0.42" />
+    <feComposite in2="topEdge" operator="in" result="light" />
+    <feMorphology in="SourceAlpha" operator="dilate" radius="1.15" result="grow" />
+    <feGaussianBlur in="grow" stdDeviation="0.3" result="growSoft" />
+    <feFlood flood-color={C.line} />
+    <feComposite in2="growSoft" operator="in" result="line" />
+    <feMerge>
+      <feMergeNode in="line" />
+      <feMergeNode in="SourceGraphic" />
+      <feMergeNode in="shade" />
+      <feMergeNode in="light" />
+    </feMerge>
+  </filter>
+
+  <filter id={`${id}-thin`} x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+    <feGaussianBlur in="SourceAlpha" stdDeviation="1.4" result="blur" />
+    <feOffset in="blur" dy="-1.4" result="up" />
+    <feComposite in="SourceAlpha" in2="up" operator="out" result="lowEdge" />
+    <feFlood flood-color="#7A3510" flood-opacity="0.3" />
+    <feComposite in2="lowEdge" operator="in" result="shade" />
+    <feMorphology in="SourceAlpha" operator="dilate" radius="0.8" result="grow" />
+    <feFlood flood-color={C.line} flood-opacity="0.9" />
+    <feComposite in2="grow" operator="in" result="line" />
+    <feMerge>
+      <feMergeNode in="line" />
+      <feMergeNode in="SourceGraphic" />
+      <feMergeNode in="shade" />
+    </feMerge>
+  </filter>
+
+  <filter id={`${id}-blur`} x="-30%" y="-30%" width="160%" height="160%">
+    <feGaussianBlur stdDeviation="1.3" />
+  </filter>
+  <filter id={`${id}-haze`} x="-40%" y="-40%" width="180%" height="180%">
+    <feGaussianBlur stdDeviation="5" />
+  </filter>
+
+  <radialGradient id={`${id}-iris`} cx="50%" cy="46%" r="52%">
+    <stop offset="0" stop-color={C.irisCore} />
+    <stop offset="0.5" stop-color={C.irisMid} />
+    <stop offset="0.86" stop-color={C.irisEdge} />
+    <stop offset="1" stop-color="#2A160A" />
+  </radialGradient>
+</defs>

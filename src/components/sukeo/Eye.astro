@@ -1,0 +1,72 @@
+---
+/**
+ * すけおの目。まぶたのない大きな目で、まわりに少し濃いふちがある。
+ * state：open（ひらく）／closed（閉じる・寝ている）／happy（にっこり）
+ *        asleep（閉じた状態で描き、wake() で開く）
+ *        wakeable（開いた状態で描き、閉じた目も隠して用意しておく。JS で sleep() → wake() できる）
+ * look ：ハイライトをずらして視線を表す（-1〜1）
+ */
+import { C } from './parts';
+
+interface Props {
+  fx: string;
+  x: number;
+  y: number;
+  r: number;
+  state?: 'open' | 'closed' | 'happy' | 'asleep' | 'wakeable';
+  lookX?: number;
+  lookY?: number;
+}
+const { fx, x, y, r, state = 'open', lookX = 0, lookY = 0 } = Astro.props;
+const showOpen = state === 'open' || state === 'asleep' || state === 'wakeable';
+const showClosed = state === 'closed' || state === 'asleep' || state === 'wakeable';
+const hx = x - r * 0.3 + lookX * r * 0.2;
+const hy = y - r * 0.34 + lookY * r * 0.2;
+---
+
+<g>
+  <!-- 目のまわりのふち（皮ふが少し盛り上がったところ） -->
+  <circle cx={x} cy={y} r={r + r * 0.2} fill={C.lid} opacity="0.55" filter={`url(#${fx}-blur)`} />
+  {
+    showOpen && (
+      <g data-part="eye" opacity={state === 'asleep' ? 0 : undefined}>
+        <circle cx={x} cy={y} r={r} fill={`url(#${fx}-iris)`} />
+        <circle cx={x} cy={y} r={r - 0.4} fill="none" stroke="#2A160A" stroke-width="0.9" opacity="0.7" />
+        <ellipse cx={hx} cy={hy} rx={r * 0.34} ry={r * 0.3} fill="#fff" opacity="0.95" />
+        <circle cx={x + r * 0.36 + lookX * r * 0.1} cy={y + r * 0.38} r={r * 0.13} fill="#fff" opacity="0.9" />
+        <path
+          d={`M${x - r * 0.62} ${y + r * 0.42} Q ${x} ${y + r * 0.86}, ${x + r * 0.62} ${y + r * 0.42}`}
+          fill="none"
+          stroke="#fff"
+          stroke-width={r * 0.09}
+          stroke-linecap="round"
+          opacity="0.18"
+        />
+      </g>
+    )
+  }
+  {
+    showClosed && (
+      <path
+        data-part="eye-closed"
+        d={`M${x - r * 0.8} ${y - r * 0.05} Q ${x} ${y + r * 0.5}, ${x + r * 0.8} ${y - r * 0.05}`}
+        fill="none"
+        stroke={C.mouth}
+        stroke-width={Math.max(1.6, r * 0.16)}
+        stroke-linecap="round"
+        opacity={state === 'wakeable' ? 0 : undefined}
+      />
+    )
+  }
+  {
+    state === 'happy' && (
+      <path
+        d={`M${x - r * 0.8} ${y + r * 0.2} Q ${x} ${y - r * 0.55}, ${x + r * 0.8} ${y + r * 0.2}`}
+        fill="none"
+        stroke={C.mouth}
+        stroke-width={Math.max(1.6, r * 0.17)}
+        stroke-linecap="round"
+      />
+    )
+  }
+</g>

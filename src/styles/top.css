@@ -1,0 +1,551 @@
+/*
+ * トップページ「すけおの暮らし散歩」の見た目。
+ * 基本は「JS なし・動きなし」でも読める縦並び。html.motion のときだけ、
+ * 背景を重ねて入れかえる・すけおが歩く・文字が順に現れる演出を足す（src/scripts/story.ts）。
+ */
+
+body.top {
+  background: var(--scene-bg);
+  transition: background-color 0.6s ease;
+}
+html.motion,
+html.motion body {
+  overflow-x: clip;
+}
+
+/* ============ シーン（共通） ============ */
+.scene {
+  position: relative;
+  isolation: isolate;
+  /* 画面から遠いシーンは、近づくまで描かない（表示を軽くする） */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 100svh;
+  min-height: 100vh;
+  min-height: 100svh;
+  color: var(--scene-ink);
+  background: var(--scene-bg);
+  --focus: var(--scene-button);
+}
+.scene-art {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+.scene-art .scene-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.scene-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: calc(70px + env(safe-area-inset-top)) 60px 16px 16px;
+}
+.scene-text {
+  position: relative;
+  z-index: 2;
+}
+.visual {
+  position: relative;
+  flex: 1;
+  min-height: 300px;
+  margin-top: 12px;
+}
+.scene-no {
+  color: var(--scene-ink-soft);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+/* 文字を1文字ずつ出す見出し：文節の切れ目でだけ改行する */
+.chars .ph {
+  display: inline-block;
+  white-space: nowrap;
+}
+.chars .ch {
+  display: inline-block;
+}
+
+/* ============ 0 壁（オープニング） ============ */
+.scene--opening .scene-inner {
+  align-items: center;
+  padding-left: 16px;
+  padding-right: 16px;
+  text-align: center;
+}
+.scene--opening .scene-text {
+  display: contents;
+}
+.eyebrow {
+  order: 1;
+  margin-top: 2svh;
+  color: var(--scene-ink-soft);
+  font-weight: 700;
+}
+.site-title {
+  order: 2;
+  font-size: clamp(2.3rem, 10vw, 3.4rem);
+  line-height: 1.25;
+}
+.title-line {
+  display: block;
+}
+.scene--opening .opening-visual {
+  position: static;
+  order: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 220px;
+}
+.wall-sukeo {
+  width: min(40vw, 170px);
+}
+.wall-svg {
+  width: 100%;
+  height: auto;
+}
+.opening-bubble {
+  order: 4;
+  max-width: 320px;
+  margin: 4px auto 64px;
+  --tail-x: 50%;
+}
+.opening-bubble::after {
+  top: -9px;
+  bottom: auto;
+  margin-left: -10px;
+  border-top: 0;
+  border-bottom: 10px solid var(--paper);
+}
+.scroll-hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 14px;
+  color: var(--scene-ink-soft);
+  font-size: 1rem;
+  font-weight: 700;
+}
+.scroll-arrow {
+  display: inline-block;
+  margin-left: 6px;
+  animation: hint-bounce 1.6s ease-in-out infinite;
+}
+@keyframes hint-bounce {
+  50% {
+    transform: translateY(5px);
+  }
+}
+
+/* ============ アプリのシーン ============ */
+.app-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+.app-icon {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  box-shadow: var(--shadow-s);
+}
+.app-title {
+  display: grid;
+  justify-items: start;
+}
+.app-name {
+  font-size: clamp(1.6rem, 7vw, 2.5rem);
+  line-height: 1.3;
+}
+.app-copy {
+  margin-top: 10px;
+  padding: 8px 14px;
+  border-radius: var(--r-m);
+  background: rgb(255 253 248 / 0.88);
+  color: var(--ink);
+}
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+.actions > * {
+  flex: 1 1 0;
+  padding: 0 12px;
+}
+/* PhoneMock 側の .phone より優先させるため、詳しく指定する */
+.scene .visual .scene-phone {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: min(100%, 420px);
+}
+.talker {
+  position: absolute;
+  left: -6px;
+  bottom: 0;
+  z-index: 3;
+  width: min(46vw, 210px);
+}
+.talker-svg {
+  width: 100%;
+  height: auto;
+}
+.talker-bubble {
+  position: absolute;
+  left: 12px;
+  bottom: calc(100% - 8px);
+  width: max-content;
+  max-width: min(58vw, 240px);
+}
+
+/* ============ 構想中（COMING SOON） ============ */
+.coming-title {
+  margin-top: 6px;
+}
+.coming-label {
+  color: var(--scene-accent);
+  font-size: clamp(1.7rem, 7vw, 2.6rem);
+  letter-spacing: 0.12em;
+}
+.coming-copy {
+  margin-top: 8px;
+  color: var(--scene-ink-soft);
+}
+.coming-card {
+  position: absolute;
+  top: 2%;
+  right: 0;
+  width: min(56vw, 240px);
+  padding: 24px 16px;
+  border-radius: var(--r-l);
+  background: rgb(255 255 255 / 0.08);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14);
+  text-align: center;
+  backdrop-filter: blur(6px);
+}
+.coming-icon {
+  width: 84px;
+  height: 84px;
+  margin: 0 auto 12px;
+  border-radius: 24px;
+  background: #8cc49a;
+  filter: blur(8px);
+  opacity: 0.75;
+}
+.coming-name {
+  margin-bottom: 10px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  filter: blur(5px);
+}
+
+/* ============ すけおの家（エンディング） ============ */
+.scene--ending .scene-inner {
+  padding-left: 16px;
+  text-align: center;
+}
+.ending-title {
+  margin-top: 2svh;
+  font-size: clamp(1.8rem, 7.5vw, 2.6rem);
+}
+.ending-copy {
+  margin-top: 6px;
+  color: var(--scene-ink-soft);
+}
+.ending-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.ending-visual {
+  position: static;
+}
+.relaxer {
+  position: absolute;
+  left: 50%;
+  bottom: 38svh;
+  width: min(72vw, 300px);
+  transform: translateX(-50%);
+}
+.relax-svg {
+  width: 100%;
+  height: auto;
+}
+
+/* ============ 歩くすけお・進み具合 ============ */
+.walker {
+  display: none;
+  position: fixed;
+  left: 0;
+  bottom: 16px;
+  z-index: 30;
+  width: 220px;
+  pointer-events: none;
+  opacity: 0;
+}
+.walker-svg {
+  width: 100%;
+  height: auto;
+}
+
+.progress {
+  position: fixed;
+  top: 50%;
+  right: 6px;
+  z-index: 35;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-radius: var(--r-pill);
+  background: rgb(255 253 248 / 0.88);
+  box-shadow: var(--shadow-s);
+  transform: translateY(-50%);
+  backdrop-filter: blur(6px);
+}
+.progress-arrow {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.18s cubic-bezier(0.3, 1.5, 0.6, 1), background-color 0.18s ease;
+}
+.progress-arrow:active {
+  transform: scale(0.9);
+}
+@media (hover: hover) {
+  .progress-arrow:hover {
+    background: var(--cream);
+  }
+}
+.progress-arrow[aria-disabled='true'] {
+  opacity: 0.35;
+  pointer-events: none;
+}
+.progress-dots {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.progress-dot {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  color: var(--ink-soft);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+}
+.progress-dot[aria-current] {
+  background: var(--sukeo);
+  color: #2b2016;
+  transform: scale(1.08);
+}
+
+/* ============ 演出あり（html.motion） ============ */
+html.motion .stage {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+html.motion .stage .scene-art {
+  opacity: 0;
+  will-change: opacity;
+}
+html.motion main {
+  position: relative;
+  z-index: 1;
+}
+html.motion .scene {
+  background: transparent;
+}
+html.motion .scene-inner {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  min-height: 0;
+}
+html.motion .walker {
+  display: block;
+}
+/* 文字が順に現れる */
+html.motion .reveal,
+html.motion .ch {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.5s ease var(--d, 0s),
+    transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) var(--d, 0s);
+}
+html.motion .is-revealed .reveal,
+html.motion .is-revealed .ch {
+  opacity: 1;
+  transform: none;
+}
+/* 2回目以降：オープニングの演出をとばす */
+html.instant .reveal,
+html.instant .ch {
+  transition: none !important;
+}
+
+/* ============ PC（横幅 960px 以上） ============ */
+@media (min-width: 960px) {
+  .scene {
+    --gap-r: clamp(72px, 7vw, 120px);
+    --panel-w: min(42vw, 600px);
+    --panel-l: calc(100vw - var(--gap-r) - var(--panel-w));
+  }
+  /* 背景の絵は、右側の「絵本の1ページ」のような枠に入れる */
+  .scene-art,
+  html.motion .stage .scene-art {
+    inset: auto;
+    top: 11vh;
+    right: clamp(72px, 7vw, 120px);
+    width: min(42vw, 600px);
+    height: 78vh;
+    border-radius: 36px;
+    box-shadow: var(--shadow-m);
+  }
+  .scene-inner,
+  .scene--opening .scene-inner,
+  .scene--ending .scene-inner {
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: max(96px, 17vh) 0 40px clamp(32px, 6vw, 96px);
+    text-align: left;
+  }
+  .scene-text,
+  .scene--opening .scene-text {
+    display: block;
+    width: min(520px, calc(var(--panel-l) - 140px - clamp(32px, 6vw, 96px)));
+  }
+  .visual {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    pointer-events: none;
+  }
+  .visual > * {
+    pointer-events: auto;
+  }
+  .eyebrow {
+    margin-top: 0;
+  }
+  .site-title {
+    font-size: clamp(2.8rem, 4.4vw, 4rem);
+  }
+  .opening-bubble {
+    margin: 20px 0 0;
+    --tail-x: 40px;
+  }
+  .opening-bubble::after {
+    margin-left: 0;
+  }
+  .wall-sukeo {
+    position: absolute;
+    top: 24vh;
+    left: calc(var(--panel-l) + var(--panel-w) / 2);
+    width: min(16vw, 220px);
+    margin-left: calc(min(16vw, 220px) / -2);
+  }
+  .scroll-hint {
+    left: clamp(32px, 6vw, 96px);
+    right: auto;
+    bottom: 32px;
+  }
+  .app-icon {
+    width: 64px;
+    height: 64px;
+  }
+  .app-name {
+    font-size: clamp(2.2rem, 3.4vw, 3rem);
+  }
+  .app-copy {
+    margin-top: 18px;
+    font-size: 1.1rem;
+  }
+  .actions {
+    margin-top: 22px;
+  }
+  .actions > * {
+    flex: none;
+    padding: 0 24px;
+  }
+  .scene .visual .scene-phone {
+    top: 50%;
+    right: auto;
+    left: calc(var(--panel-l) - 90px);
+    height: min(70vh, 580px);
+    margin-top: calc(min(70vh, 580px) / -2);
+  }
+  /* PC では、すけおは左の文章の下に立ち、右上へ話しかける */
+  .talker {
+    left: calc(clamp(32px, 6vw, 96px) - 8px);
+    bottom: 20px;
+    width: min(15vw, 200px);
+  }
+  .talker-bubble {
+    left: 72%;
+    bottom: 62%;
+    max-width: 300px;
+    --tail-x: 18px;
+  }
+  .coming-card {
+    top: 26vh;
+    right: auto;
+    left: calc(var(--panel-l) + var(--panel-w) / 2);
+    width: min(24vw, 300px);
+    margin-left: calc(min(24vw, 300px) / -2);
+  }
+  .ending-links {
+    justify-content: flex-start;
+  }
+  .ending-visual {
+    position: absolute;
+  }
+  .relaxer {
+    top: calc(11vh + 78vh * 0.62);
+    bottom: auto;
+    left: calc(var(--panel-l) + var(--panel-w) / 2);
+    width: min(30vw, 400px);
+    transform: translate(-50%, -100%);
+  }
+  .progress {
+    right: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-arrow {
+    animation: none;
+  }
+}

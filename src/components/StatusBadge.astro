@@ -1,0 +1,10 @@
+---
+/** アプリのステータス（公開中／開発中／構想中） */
+interface Props {
+  status: '公開中' | '開発中' | '構想中';
+}
+const { status } = Astro.props;
+const cls = { 公開中: 'badge-live', 開発中: 'badge-dev', 構想中: 'badge-idea' }[status];
+---
+
+<span class:list={['badge', cls]}>{status}</span>

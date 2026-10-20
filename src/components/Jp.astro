@@ -1,0 +1,25 @@
+---
+/**
+ * 日本語の文章を、文節の切れ目で改行されるように出す。
+ * 使い方：<p><Jp text="今日のごはん、決めよっか。" /></p>
+ */
+import { jp } from '../lib/jp';
+
+interface Props {
+  text: string;
+}
+const { text } = Astro.props;
+---
+
+<span class="jp" set:html={jp(text)} />
+
+<style is:global>
+  /* 文節の切れ目（<wbr>）でだけ改行する。狭すぎてはみ出すときだけ、文節の途中でも折り返す */
+  .jp {
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+  .jp-tail {
+    white-space: nowrap;
+  }
+</style>

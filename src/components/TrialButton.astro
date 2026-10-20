@@ -1,0 +1,24 @@
+---
+/**
+ * 「体験版を試す」ボタン。体験版のURLがないときは「体験版準備中」と表示する（押せない）。
+ * 外部リンクなので、新しいタブで開き、rel="noopener noreferrer" を付ける。
+ */
+interface Props {
+  url?: string | undefined;
+  name: string;
+  class?: string;
+}
+const { url, name, class: className } = Astro.props;
+---
+
+{
+  url ? (
+    <a class:list={['btn', 'btn-primary', className]} href={url} target="_blank" rel="noopener noreferrer">
+      体験版を試す
+      <span class="sr-only">（{name}の体験版が新しいタブで開きます）</span>
+      <span class="ext" aria-hidden="true">↗</span>
+    </a>
+  ) : (
+    <span class:list={['btn', 'btn-disabled', className]}>体験版準備中</span>
+  )
+}

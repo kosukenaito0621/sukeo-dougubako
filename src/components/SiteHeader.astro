@@ -1,0 +1,266 @@
+---
+/**
+ * 画面の上のヘッダー（ロゴとメニューボタン）と、全画面メニュー。
+ * メニューは JS がなくても開ける（#menu へのリンクと :target）。JS があれば、
+ * Esc で閉じる・フォーカスを中に閉じこめる・開いている間はスクロールを止める（src/scripts/menu.ts）。
+ */
+import { getCollection } from 'astro:content';
+import { SITE } from '../site.config';
+import { SCENES } from '../scenes/keys';
+
+interface Props {
+  /** トップページのときは、シーンへのリンクをページ内リンクにする */
+  onTop?: boolean;
+}
+const { onTop = false } = Astro.props;
+const apps = (await getCollection('apps')).map((e) => e.data).sort((a, b) => a.order - b.order);
+const top = onTop ? '' : '/';
+const sceneLinks = [
+  { href: `${top}#scene-0`, no: 0, label: '朝の壁', sub: 'はじまり' },
+  ...apps.map((a, i) => ({
+    href: `${top}#scene-${i + 1}`,
+    no: i + 1,
+    label: SCENES[a.scene as keyof typeof SCENES].label,
+    sub: a.status === '構想中' ? 'COMING SOON' : a.name,
+  })),
+  { href: `${top}#scene-${apps.length + 1}`, no: apps.length + 1, label: 'すけおの家', sub: 'おしまい' },
+];
+const details = apps.filter((a) => a.status !== '構想中');
+---
+
+<header class="site-header">
+  <a class="logo" href="/" aria-label={`${SITE.name}（トップへ）`}>
+    <img src="/favicon.svg" alt="" width="36" height="36" class="logo-face" />
+    <span class="logo-name">{SITE.name}</span>
+  </a>
+  <a class="menu-open" href="#menu" aria-controls="menu" aria-expanded="false" data-menu-open>
+    <span class="menu-icon" aria-hidden="true"><span></span><span></span><span></span></span>
+    メニュー
+  </a>
+</header>
+
+<nav id="menu" class="menu" aria-label="メニュー" data-menu>
+  <div class="menu-inner">
+    <div class="menu-top">
+      <p class="menu-title">メニュー</p>
+      <a class="menu-close" href="#" data-menu-close>
+        <span aria-hidden="true">×</span>
+        閉じる
+      </a>
+    </div>
+    <div class="menu-cols">
+      <section aria-labelledby="menu-scenes">
+        <h2 id="menu-scenes" class="menu-h">すけおの暮らし散歩</h2>
+        <ol class="menu-scenes">
+          {
+            sceneLinks.map((s) => (
+              <li>
+                <a href={s.href} data-menu-link>
+                  <span class="menu-no" aria-hidden="true">
+                    {s.no}
+                  </span>
+                  <span class="menu-label">
+                    {s.label}
+                    <span class="menu-sub">{s.sub}</span>
+                  </span>
+                </a>
+              </li>
+            ))
+          }
+        </ol>
+      </section>
+      <section aria-labelledby="menu-apps">
+        <h2 id="menu-apps" class="menu-h">アプリの詳しい説明</h2>
+        <ul class="menu-apps">
+          {
+            details.map((a) => (
+              <li>
+                <a href={`/apps/${a.slug}/`} data-menu-link>
+                  {a.name}
+                  <span aria-hidden="true">→</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+    </div>
+  </div>
+</nav>
+
+<script>
+  import '../scripts/menu';
+</script>
+
+<style>
+  .site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: max(10px, env(safe-area-inset-top)) 12px 10px 12px;
+    pointer-events: none;
+  }
+  .site-header > * {
+    pointer-events: auto;
+  }
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 4px 14px 4px 4px;
+    border-radius: var(--r-pill);
+    background: rgb(255 253 248 / 0.88);
+    box-shadow: var(--shadow-s);
+    color: var(--ink);
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: none;
+    backdrop-filter: blur(6px);
+  }
+  .logo-face {
+    width: 36px;
+    height: 36px;
+  }
+  .menu-open,
+  .menu-close {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 16px;
+    border-radius: var(--r-pill);
+    background: rgb(255 253 248 / 0.88);
+    box-shadow: var(--shadow-s);
+    color: var(--ink);
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: none;
+    backdrop-filter: blur(6px);
+    transition: transform 0.18s cubic-bezier(0.3, 1.5, 0.6, 1);
+  }
+  .menu-open:active,
+  .menu-close:active {
+    transform: scale(0.95);
+  }
+  .menu-icon {
+    display: grid;
+    gap: 3px;
+  }
+  .menu-icon span {
+    display: block;
+    width: 16px;
+    height: 2px;
+    border-radius: 2px;
+    background: currentColor;
+  }
+  @media (max-width: 359px) {
+    .logo-name {
+      display: none;
+    }
+  }
+
+  .menu {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: none;
+    overflow-y: auto;
+    background: var(--cream);
+    color: var(--ink);
+    overscroll-behavior: contain;
+  }
+  .menu:target,
+  .menu.is-open {
+    display: block;
+  }
+  .menu-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: max(14px, env(safe-area-inset-top)) 16px 48px;
+  }
+  .menu-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .menu-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+  .menu-cols {
+    display: grid;
+    gap: 32px;
+  }
+  @media (min-width: 760px) {
+    .menu-cols {
+      grid-template-columns: 1.3fr 1fr;
+      gap: 48px;
+    }
+  }
+  .menu-h {
+    margin-bottom: 12px;
+    color: var(--ink-soft);
+    font-size: 1rem;
+  }
+  .menu-scenes,
+  .menu-apps {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .menu-scenes a,
+  .menu-apps a {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 56px;
+    padding: 8px 16px;
+    border-radius: var(--r-m);
+    background: var(--paper);
+    box-shadow: var(--shadow-s);
+    font-weight: 700;
+    text-decoration: none;
+    transition:
+      transform 0.18s cubic-bezier(0.3, 1.5, 0.6, 1),
+      box-shadow 0.18s ease;
+  }
+  .menu-apps a {
+    justify-content: space-between;
+  }
+  @media (hover: hover) {
+    .menu-scenes a:hover,
+    .menu-apps a:hover {
+      transform: translateX(4px);
+      box-shadow: var(--shadow-m);
+    }
+  }
+  .menu-no {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--sukeo);
+    color: #2b2016;
+  }
+  .menu-label {
+    display: grid;
+    line-height: 1.5;
+  }
+  .menu-sub {
+    color: var(--ink-soft);
+    font-size: 1rem;
+    font-weight: 500;
+  }
+</style>

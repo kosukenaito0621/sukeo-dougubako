@@ -1,0 +1,128 @@
+---
+/**
+ * すけお（顔はこちら、体は横向きの「振り向き」ポーズ）。
+ * - sit  ：4本の足で立ってこちらを見る（ロゴ・OGP）
+ * - talk ：手前の前足を上げてしゃべる（アプリ紹介）。wink でウインク
+ * - lost ：首をかしげて困る（404）
+ * 胴は1つの形（つなぎ目なし）。頭・手前の足は重ねて描く。
+ */
+import HeadFront from './HeadFront.astro';
+import Layer from './Layer.astro';
+import Shapes from './Shapes.astro';
+import SoftDefs from './SoftDefs.astro';
+import { C, along, blob, ellipse, scatter, spines, taper, taperW, toes, uid, type Pt, type Shape } from './parts';
+
+interface Props {
+  pose?: 'sit' | 'talk' | 'lost';
+  wink?: boolean;
+  /** 読み上げ用の説明。省略すると飾り扱い（aria-hidden） */
+  label?: string;
+  class?: string;
+}
+const { pose = 'sit', wink = false, label, class: className } = Astro.props;
+const fx = uid();
+const talk = pose === 'talk';
+const lost = pose === 'lost';
+
+const core: Shape[] = [
+  ellipse(104, 150, 26, 22), // 肩
+  ellipse(150, 148, 56, 24), // 胴
+  ellipse(150, 158, 48, 16), // お腹
+  ellipse(196, 148, 22, 20), // 腰
+];
+const tailLine: Pt[] = [[196, 144], [224, 148], [244, 136], [250, 114], [242, 96], [228, 94], [222, 104], [228, 114], [238, 110]];
+const tail: Shape[] = [taper(tailLine, 22, 5)];
+const tailBands = [0.14, 0.28, 0.42, 0.56, 0.7].map((t, i) => {
+  const p = along(tailLine, t);
+  return blob(p.x, p.y, 7.5 - i * 0.7, 3.4 - i * 0.3, p.deg + 90, 40 + i);
+});
+const bodyBlotches = [
+  blob(130, 136, 8, 5, -10, 21), blob(160, 132, 7, 4.4, 10, 22), blob(186, 140, 6.5, 4.2, -20, 23),
+  blob(146, 150, 5.5, 3.4, 0, 24), blob(116, 152, 5, 3.2, 20, 25),
+];
+const speckles = scatter(110, 128, 206, 160, 22, 9);
+const dorsalCrest = spines([[118, 128], [146, 125], [174, 126], [204, 132]], 12, 4.4, 4.4, -1, -0.6);
+
+// 手足（左向きの体）：付け根 → ひじ・ひざ → 手首。指は5本で、先に吸盤
+function limb(line: Pt[], widths: number[], hx: number, hy: number, dirs: number[]) {
+  const t = toes(hx, hy, dirs, 9, 4.5);
+  return { shapes: [taperW(line, widths), ...t.shapes], pads: t.pads };
+}
+const farFront = limb([[114, 150], [106, 166], [98, 180], [94, 186]], [14, 10, 9, 8], 92, 189, [210, 180, 150, 120, 25]);
+const farBack = limb([[204, 146], [214, 160], [218, 174], [220, 180]], [16, 11, 9, 8], 221, 184, [205, 175, 145, 115, 20]);
+const nearFront = limb([[104, 156], [112, 172], [108, 186], [102, 192]], [16, 11, 10, 9], 100, 194, [210, 180, 150, 120, 25]);
+const nearBack = limb([[194, 154], [180, 166], [184, 182], [188, 188]], [19, 13, 10, 9], 190, 191, [205, 175, 145, 115, 15]);
+const raised = limb([[104, 156], [82, 162], [58, 158], [42, 142]], [16, 11, 10, 9], 39, 137, [-215, -183, -151, -119, -87]);
+---
+
+<svg
+  viewBox="0 0 260 214"
+  xmlns="http://www.w3.org/2000/svg"
+  class:list={['sukeo', `sukeo--${pose}`, className]}
+  data-sukeo={pose}
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
+>
+  <SoftDefs id={fx} />
+  <defs>
+    <linearGradient id={`${fx}-back`} x1="0" y1="120" x2="0" y2="172" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color={C.dorsal} stop-opacity="0.75" />
+      <stop offset="0.5" stop-color={C.dorsal} stop-opacity="0" />
+    </linearGradient>
+  </defs>
+
+  <Layer fx={fx} shapes={farFront.shapes} fill={C.far}><Shapes shapes={farFront.pads} fill={C.pad} /></Layer>
+  <Layer fx={fx} shapes={farBack.shapes} fill={C.far}><Shapes shapes={farBack.pads} fill={C.pad} /></Layer>
+
+  <Layer fx={fx} shapes={tail} fill={C.body} part="tail" origin="198 146">
+    <g filter={`url(#${fx}-blur)`} opacity="0.6">{tailBands.map((d) => <path d={d} fill={C.blotch} />)}</g>
+  </Layer>
+
+  <Layer fx={fx} shapes={core} fill={C.body} part="body">
+    <rect x="0" y="0" width="260" height="214" fill={`url(#${fx}-back)`} />
+    <g filter={`url(#${fx}-haze)`}>
+      <ellipse cx="148" cy="170" rx="52" ry="8" fill={C.belly} />
+    </g>
+    <g filter={`url(#${fx}-blur)`} opacity="0.6">
+      {bodyBlotches.map((d, i) => <path d={d} fill={i % 3 === 2 ? C.olive : C.blotch} />)}
+    </g>
+    {speckles.map((s) => <circle cx={s.x} cy={s.y} r={0.7 + s.k * 0.9} fill={C.speckle} opacity="0.75" />)}
+  </Layer>
+  <Layer fx={fx} shapes={dorsalCrest} fill={C.crest} filter="thin" />
+
+  <Layer fx={fx} shapes={nearBack.shapes} fill={C.body}><Shapes shapes={nearBack.pads} fill={C.pad} /></Layer>
+  {
+    !talk && (
+      <Layer fx={fx} shapes={nearFront.shapes} fill={C.body} part="arm-l">
+        <Shapes shapes={nearFront.pads} fill={C.pad} />
+      </Layer>
+    )
+  }
+
+  <g data-part="head" data-origin="100 142" transform={lost ? 'rotate(-9 100 142)' : undefined}>
+    <g transform="translate(100 110) scale(0.85)">
+      <HeadFront fx={fx} ox={0} oy={0} eyes={lost ? 'look' : wink ? 'wink' : 'open'} mouth={talk ? 'open' : lost ? 'wobble' : 'smile'} />
+    </g>
+  </g>
+
+  {
+    talk && (
+      <Layer fx={fx} shapes={raised.shapes} fill={C.body} part="arm-r" origin="104 156">
+        <Shapes shapes={raised.pads} fill={C.pad} />
+      </Layer>
+    )
+  }
+
+  {
+    lost && (
+      <g data-part="lost-marks" fill="none" stroke={C.mouth} stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 30 C 14 17, 32 17, 32 28 C 32 37, 23 37, 23 46" stroke-width="4" />
+        <circle cx="23" cy="55" r="2.6" fill={C.mouth} stroke="none" />
+        <path d="M176 32 C 176 24, 187 24, 187 31 C 187 37, 181.5 37, 181.5 42" stroke-width="3" />
+        <circle cx="181.5" cy="49" r="1.9" fill={C.mouth} stroke="none" />
+        <path d="M168 70 C 163 78, 163 84, 168 86 C 173 84, 173 78, 168 70 Z" fill={C.sweat} stroke-width="1.4" />
+      </g>
+    )
+  }
+</svg>

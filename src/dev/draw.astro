@@ -1,0 +1,31 @@
+---
+// 作画確認用（1ポーズを大きく表示する。公開前に削除する）
+import SukeoFace from '../components/sukeo/SukeoFace.astro';
+import SukeoFront from '../components/sukeo/SukeoFront.astro';
+import SukeoRelax from '../components/sukeo/SukeoRelax.astro';
+import SukeoSide from '../components/sukeo/SukeoSide.astro';
+import SukeoWall from '../components/sukeo/SukeoWall.astro';
+
+export function getStaticPaths() {
+  return ['side', 'sit', 'talk', 'lost', 'face', 'wall', 'relax'].map((p) => ({ params: { p } }));
+}
+const { p } = Astro.params;
+---
+
+<html lang="ja">
+  <body style="margin:0;background:#fbf5ea">
+    <div style="width:900px;background:#fff;padding:20px">
+      {p === 'side' && <SukeoSide class="big" />}
+      {p === 'sit' && <SukeoFront pose="sit" class="sq" />}
+      {p === 'talk' && <SukeoFront pose="talk" wink class="sq" />}
+      {p === 'lost' && <SukeoFront pose="lost" class="sq" />}
+      {p === 'face' && <SukeoFace class="sq" />}
+      {p === 'wall' && <SukeoWall asleep class="sq" />}
+      {p === 'relax' && <SukeoRelax class="big" />}
+    </div>
+    <style is:global>
+      .big { width: 860px; height: auto; display: block; }
+      .sq { width: 600px; height: auto; display: block; }
+    </style>
+  </body>
+</html>

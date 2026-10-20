@@ -1,0 +1,21 @@
+---
+/**
+ * 見出しの文字を1文字ずつ <span> に分けて出す（文字が順に現れる演出用）。
+ * 改行は文節の切れ目だけ（src/lib/jp.ts と同じルール。最後の行が短くなりすぎない）。
+ * 読み上げソフトには1つの言葉として読ませる（分けた文字は aria-hidden、元の文は sr-only）。
+ * 要素の間に空白が入らないよう、HTML を文字列で組み立てる。
+ */
+import { phrases } from '../../lib/jp';
+
+interface Props {
+  text: string;
+}
+const { text } = Astro.props;
+const esc = (s: string) =>
+  s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+const html = phrases(text)
+  .map((p) => `<span class="ph">${[...p].map((c) => `<span class="ch">${c === ' ' ? '&nbsp;' : esc(c)}</span>`).join('')}</span>`)
+  .join('<wbr>');
+---
+
+<span class="sr-only">{text}</span><span class="chars" aria-hidden="true" set:html={html} />

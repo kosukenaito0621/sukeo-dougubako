@@ -1,0 +1,215 @@
+---
+// チェックポイント2の確認用ページ（公開前に削除する）
+import SukeoFront from '../components/sukeo/SukeoFront.astro';
+import SukeoSide from '../components/sukeo/SukeoSide.astro';
+import SukeoWall from '../components/sukeo/SukeoWall.astro';
+import SukeoRelax from '../components/sukeo/SukeoRelax.astro';
+import SukeoFace from '../components/sukeo/SukeoFace.astro';
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>すけおの試作</title>
+    <style>
+      :root {
+        --cream: #fbf5ea;
+        --ink: #3a2a1e;
+      }
+      body {
+        margin: 0;
+        background: var(--cream);
+        color: var(--ink);
+        font-family: 'Hiragino Maru Gothic ProN', 'Yu Gothic', system-ui, sans-serif;
+        line-height: 1.8;
+        font-size: 16px;
+      }
+      main {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 24px 16px 120px;
+      }
+      h1 { font-size: 1.5rem; margin: 0 0 4px; }
+      h2 { font-size: 1.1rem; margin: 40px 0 12px; }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+      }
+      figure {
+        margin: 0;
+        background: #fff;
+        border-radius: 24px;
+        padding: 16px;
+        text-align: center;
+        box-shadow: 0 2px 10px rgb(58 42 30 / 0.06);
+      }
+      figure :global(svg) { width: 100%; height: 180px; }
+      figcaption { font-size: 0.9rem; margin-top: 8px; }
+      button {
+        font: inherit;
+        border: 0;
+        border-radius: 999px;
+        background: var(--ink);
+        color: var(--cream);
+        padding: 6px 16px;
+        margin-top: 8px;
+        cursor: pointer;
+      }
+      button:focus-visible { outline: 3px solid #e2a24a; outline-offset: 2px; }
+      .icons { display: flex; align-items: end; gap: 16px; }
+      .icons svg { background: #fff; border-radius: 8px; }
+      .track {
+        position: relative;
+        height: 200vh;
+        margin-top: 16px;
+        border-radius: 24px;
+        background: linear-gradient(#f6e7cf, #e9f1d8);
+      }
+      .track__sticky {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        align-items: end;
+      }
+      .track__floor {
+        position: absolute; left: 0; right: 0; bottom: 0; height: 22vh;
+        background: #d9c3a0;
+      }
+      .track :global(.walker) {
+        position: absolute;
+        bottom: calc(22vh - 6px);
+        left: 0;
+        width: min(46vw, 260px);
+        height: auto;
+      }
+      .track__label {
+        position: absolute; top: 16px; left: 16px; right: 16px;
+        font-size: 0.95rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>すけおの試作</h1>
+      <p>ポーズの見た目と動きの確認用です。ボタンで動きを試せます。いちばん下では、スクロールに合わせてすけおが歩きます。</p>
+
+      <h2>ポーズ</h2>
+      <div class="grid">
+        <figure>
+          <SukeoFront pose="sit" label="正面でまんまる座りのすけお" class="js-blink js-wag" />
+          <figcaption>A：正面（ロゴ・OGP）</figcaption>
+        </figure>
+        <figure>
+          <SukeoFront pose="talk" label="片手を上げてしゃべるすけお" class="js-blink js-wave-target" />
+          <figcaption>C：片手を上げてしゃべる</figcaption>
+          <button type="button" class="js-wave">手を振る</button>
+        </figure>
+        <figure>
+          <SukeoFront pose="talk" wink label="ウインクするすけお" />
+          <figcaption>C：ウインク</figcaption>
+        </figure>
+        <figure>
+          <SukeoSide label="横向きで歩くすけお" class="js-walk-demo js-blink" />
+          <figcaption>B：横向きで歩く</figcaption>
+          <button type="button" class="js-walk-toggle">歩く／止まる</button>
+        </figure>
+        <figure>
+          <SukeoWall asleep label="壁にはりついて眠るすけお" class="js-wall" />
+          <figcaption>壁にはりつく（オープニング）</figcaption>
+          <button type="button" class="js-wake">起きてのぼる</button>
+        </figure>
+        <figure>
+          <SukeoRelax label="くつろぐすけお" class="js-wag" />
+          <figcaption>くつろぐ（エンディング）</figcaption>
+        </figure>
+        <figure>
+          <SukeoFront pose="lost" label="迷子になって困っているすけお" class="js-blink" />
+          <figcaption>迷子（404）</figcaption>
+        </figure>
+      </div>
+
+      <h2>顔アイコン（ファビコン用。64px と 32px）</h2>
+      <div class="icons">
+        <SukeoFace label="すけおの顔" />
+      </div>
+
+      <h2>スクロールで歩く</h2>
+    </main>
+    <section class="track js-track">
+      <div class="track__sticky">
+        <p class="track__label">↓ スクロールすると、すけおが右へ歩きます</p>
+        <div class="track__floor"></div>
+        <SukeoSide class="walker js-walker" />
+      </div>
+    </section>
+    <div style="height: 40vh"></div>
+
+    <style>
+      .icons :global(svg) { width: 64px; height: 64px; }
+      .icons :global(svg + svg) { width: 32px; height: 32px; }
+    </style>
+
+    <script>
+      import { gsap } from 'gsap';
+      import { ScrollTrigger } from 'gsap/ScrollTrigger';
+      import { blink, climb, reducedMotion, wagTail, walkCycle, wake, wave } from '../scripts/sukeo';
+
+      gsap.registerPlugin(ScrollTrigger);
+
+      // 小さいサイズを2つ並べる
+      const icons = document.querySelector('.icons');
+      const icon = icons?.querySelector('svg');
+      if (icons && icon) icons.append(icon.cloneNode(true));
+
+      const still = reducedMotion();
+
+      if (!still) {
+        document.querySelectorAll('.js-blink').forEach((el) => blink(el));
+        document.querySelectorAll('.js-wag').forEach((el) => wagTail(el, 6));
+      }
+
+      const talker = document.querySelector('.js-wave-target');
+      document.querySelector('.js-wave')?.addEventListener('click', () => talker && wave(talker));
+
+      const demo = document.querySelector('.js-walk-demo');
+      if (demo) {
+        const tl = walkCycle(demo);
+        document.querySelector('.js-walk-toggle')?.addEventListener('click', () => (tl.paused() ? tl.play() : tl.pause()));
+      }
+
+      const wall = document.querySelector('.js-wall');
+      document.querySelector('.js-wake')?.addEventListener('click', () => {
+        if (!wall) return;
+        gsap.set(wall, { y: 0 });
+        gsap.timeline().add(wake(wall)).add(climb(wall, 24), '+=0.2').to(wall, { y: 0, duration: 0.6 }, '+=0.4');
+      });
+
+      // スクロール量に合わせて歩く：横の移動と、脚の動きの進み具合を同じスクロールで動かす
+      const walker = document.querySelector<SVGSVGElement>('.js-walker');
+      if (walker && !still) {
+        const cycle = walkCycle(walker);
+        const steps = 10;
+        gsap.to(walker, {
+          x: () => window.innerWidth - walker.getBoundingClientRect().width,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: '.js-track',
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: 0.4,
+            invalidateOnRefresh: true,
+            onUpdate: (self) => {
+              cycle.progress((self.progress * steps) % 1);
+            },
+          },
+        });
+      }
+    </script>
+  </body>
+</html>

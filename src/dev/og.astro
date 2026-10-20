@@ -1,0 +1,133 @@
+---
+/**
+ * OGP 画像（1200×630）とファビコンの元になるページ（開発中だけ使う）。
+ * npm run og で、この画面を撮って public/og.png・public/favicon.svg などを作る（scripts/make-og.mjs）。
+ */
+import '@fontsource/zen-maru-gothic/700.css';
+import '../styles/tokens.css';
+import Jp from '../components/Jp.astro';
+import SukeoFace from '../components/sukeo/SukeoFace.astro';
+import SukeoFront from '../components/sukeo/SukeoFront.astro';
+import { SITE } from '../site.config';
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>OGP</title>
+  </head>
+  <body>
+    <div id="og" class="og">
+      <div class="og-sun"></div>
+      <div class="og-leaf og-leaf-a"></div>
+      <div class="og-leaf og-leaf-b"></div>
+      <div class="og-text">
+        <p class="og-tag">{SITE.tagline}</p>
+        <p class="og-name">すけおの<br />暮らし道具箱</p>
+        <p class="og-sub"><Jp text="クレステッドゲッコーのすけおが案内する、暮らしの小さな道具たち" /></p>
+      </div>
+      <div class="og-floor"></div>
+      <SukeoFront pose="sit" class="og-sukeo" />
+    </div>
+    <div id="face" class="face"><SukeoFace /></div>
+
+    <style is:global>
+      body {
+        margin: 0;
+        background: transparent;
+        font-family: 'Zen Maru Gothic', sans-serif;
+      }
+      .og {
+        position: relative;
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+        background: linear-gradient(160deg, #fcf3e4 0%, #f4e4c9 100%);
+        color: #3a2a1e;
+      }
+      .og-sun {
+        position: absolute;
+        right: 120px;
+        top: -140px;
+        width: 520px;
+        height: 520px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgb(255 246 222 / 0.95), rgb(255 246 222 / 0) 70%);
+      }
+      .og-leaf {
+        position: absolute;
+        border-radius: 0 100% 0 100%;
+        background: #8dba63;
+        opacity: 0.35;
+      }
+      .og-leaf-a {
+        left: -40px;
+        top: 380px;
+        width: 220px;
+        height: 120px;
+        transform: rotate(-20deg);
+      }
+      .og-leaf-b {
+        right: 30px;
+        top: 60px;
+        width: 140px;
+        height: 80px;
+        transform: rotate(30deg);
+        background: #e07a55;
+        opacity: 0.25;
+      }
+      .og-text {
+        position: absolute;
+        left: 80px;
+        top: 96px;
+        width: 560px;
+      }
+      .og-tag {
+        margin: 0 0 8px;
+        color: #a65e26;
+        font-size: 32px;
+        font-weight: 700;
+      }
+      .og-name {
+        margin: 0;
+        font-size: 86px;
+        font-weight: 700;
+        line-height: 1.22;
+      }
+      .og-sub {
+        margin: 22px 0 0;
+        color: #6b5544;
+        font-size: 26px;
+        font-weight: 700;
+        line-height: 1.6;
+      }
+      .og-floor {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 70px;
+        background: #e3c79c;
+      }
+      .og-sukeo {
+        position: absolute;
+        right: 40px;
+        bottom: 30px;
+        width: 560px;
+        height: auto;
+      }
+      .face {
+        width: 512px;
+        height: 512px;
+        margin-top: 20px;
+        background: transparent;
+      }
+      .face svg {
+        width: 512px;
+        height: 512px;
+      }
+    </style>
+  </body>
+</html>

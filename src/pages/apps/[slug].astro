@@ -1,0 +1,451 @@
+---
+/**
+ * アプリの詳細ページ（/apps/<slug>/）。構想中のアプリはページを作らない。
+ */
+import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Jp from '../../components/Jp.astro';
+import PhoneMock from '../../components/PhoneMock.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import StatusBadge from '../../components/StatusBadge.astro';
+import TrialButton from '../../components/TrialButton.astro';
+import SukeoFront from '../../components/sukeo/SukeoFront.astro';
+
+export async function getStaticPaths() {
+  const apps = (await getCollection('apps')).filter((e) => e.data.status !== '構想中');
+  return apps.map((e) => ({ params: { slug: e.data.slug }, props: { app: e.data } }));
+}
+
+const { app } = Astro.props;
+const fmt = new Intl.DateTimeFormat('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Tokyo' });
+const iso = (d: Date) => d.toISOString().slice(0, 10);
+// 更新履歴は新しい順（同じ日付はファイルに書いた順）
+const changelog = (app.changelog ?? []).map((c, i) => ({ ...c, i })).sort((a, b) => b.date.getTime() - a.date.getTime() || a.i - b.i);
+const shots = app.screenshots ?? [];
+---
+
+<BaseLayout title={app.name} description={`${app.name}：${app.catchcopy}`} scene={app.scene} bodyClass="detail">
+  <SiteHeader />
+  <main id="main" class="detail-main">
+    <p class="back back-top"><a href="/">← トップへ戻る</a></p>
+
+    <header class="hero">
+      {app.icon && <Image src={app.icon} alt="" width={112} height={112} densities={[1, 2]} class="hero-icon" loading="eager" />}
+      <div class="hero-text">
+        <StatusBadge status={app.status} />
+        <h1 class="hero-name">{app.name}</h1>
+        <p class="hero-copy"><Jp text={app.catchcopy} /></p>
+        <div class="hero-actions">
+          <TrialButton url={app.trialUrl} name={app.name} />
+        </div>
+      </div>
+    </header>
+
+    {
+      shots.length > 0 && (
+        <section class="block" aria-labelledby="h-gallery">
+          <div class="block-head">
+            <h2 id="h-gallery">画面のようす</h2>
+            <div class="gallery-nav" data-gallery-nav hidden>
+              <button type="button" class="round" data-dir="-1" aria-label="前の画面へ">
+                ←
+              </button>
+              <button type="button" class="round" data-dir="1" aria-label="次の画面へ">
+                →
+              </button>
+            </div>
+          </div>
+          <p class="hint">横にスワイプすると、ほかの画面も見られます。</p>
+          <ul class="gallery" tabindex="0" aria-label="スクショ（横にスクロールできます）" data-gallery>
+            {shots.map((s, i) => (
+              <li class="gallery-item">
+                <PhoneMock shots={[s]} class="gallery-phone" eager={i === 0} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    {
+      app.howTo && app.howTo.length > 0 && (
+        <section class="block" aria-labelledby="h-howto">
+          <h2 id="h-howto">使い方</h2>
+          <ol class="steps">
+            {app.howTo.map((step, i) => (
+              <li class="step">
+                <div class="step-text">
+                  <p class="step-no" aria-hidden="true">
+                    {i + 1}
+                  </p>
+                  <h3 class="step-title">
+                    <Jp text={step.title} />
+                  </h3>
+                  <p>
+                    <Jp text={step.body} />
+                  </p>
+                </div>
+                {step.image && (
+                  <Image src={step.image} alt={`${step.title}の画面`} widths={[180, 270, 360]} sizes="180px" class="step-img" />
+                )}
+              </li>
+            ))}
+          </ol>
+        </section>
+      )
+    }
+
+    <section class="block trial" aria-labelledby="h-trial">
+      <h2 id="h-trial">体験版について</h2>
+      {
+        app.trialUrl ? (
+          <p>
+            <Jp text="ログインなしで、見本のデータが入った状態から試せます。" />
+          </p>
+        ) : (
+          <p>
+            <Jp text="体験版は、ただいま準備中です。もう少しだけ待っていてね。" />
+          </p>
+        )
+      }
+      {
+        app.trialLimitations && app.trialLimitations.length > 0 && (
+          <>
+            <h3 class="sub-h">体験版でできないこと</h3>
+            <ul class="limits">
+              {app.trialLimitations.map((l) => (
+                <li>
+                  <Jp text={l} />
+                </li>
+              ))}
+            </ul>
+          </>
+        )
+      }
+      <TrialButton url={app.trialUrl} name={app.name} />
+    </section>
+
+    <section class="block sukeo-says" aria-labelledby="h-sukeo">
+      <h2 id="h-sukeo" class="sr-only">すけおの一言</h2>
+      <SukeoFront pose="talk" class="says-svg" label="片手を上げて話すすけお" />
+      <p class="bubble says-bubble"><Jp text={app.sukeoLine} /></p>
+    </section>
+
+    {
+      changelog.length > 0 && (
+        <section class="block" aria-labelledby="h-log">
+          <h2 id="h-log">更新履歴</h2>
+          <ol class="log">
+            {changelog.map((c) => (
+              <li class="log-item">
+                <p class="log-date">
+                  <time datetime={iso(c.date)}>{fmt.format(c.date)}</time>
+                  {c.version && <span class="log-ver">{c.version}</span>}
+                </p>
+                <p>
+                  <Jp text={c.body} />
+                </p>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )
+    }
+
+    {
+      app.credits && app.credits.length > 0 && (
+        <section class="block credits" aria-labelledby="h-credits">
+          <h2 id="h-credits">クレジット</h2>
+          {app.credits.map((group) => (
+            <>
+              <p class="credit-label">
+                <Jp text={group.label} />
+              </p>
+              <ul class="credit-list">
+                {group.items.map((c) => (
+                  <li>
+                    <a href={c.url} target="_blank" rel="noopener noreferrer">
+                      {c.work}
+                      <span class="sr-only">（新しいタブで開きます）</span>
+                    </a>
+                    ：{c.author}（{c.license}）
+                  </li>
+                ))}
+              </ul>
+            </>
+          ))}
+        </section>
+      )
+    }
+
+    <p class="back"><a href="/">← トップへ戻る</a></p>
+  </main>
+  <SiteFooter />
+
+  <script>
+    import '../../scripts/gallery';
+  </script>
+</BaseLayout>
+
+<style>
+  .detail-main {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: calc(76px + env(safe-area-inset-top)) 16px 32px;
+  }
+  .back {
+    margin: 24px 0 0;
+  }
+  .back-top {
+    margin: 0 0 12px;
+  }
+  .back a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-weight: 700;
+    text-underline-offset: 4px;
+  }
+  .hero {
+    display: grid;
+    gap: 16px;
+    padding: 24px 20px;
+    border-radius: var(--r-l);
+    background: var(--scene-bg);
+    color: var(--scene-ink);
+  }
+  .hero-icon {
+    width: 88px;
+    height: 88px;
+    border-radius: 24px;
+    box-shadow: var(--shadow-s);
+  }
+  .hero-text {
+    display: grid;
+    justify-items: start;
+    gap: 6px;
+  }
+  .hero-name {
+    font-size: var(--fs-h1);
+  }
+  .hero-copy {
+    color: var(--scene-ink-soft);
+  }
+  .hero-actions {
+    margin-top: 10px;
+  }
+  @media (min-width: 640px) {
+    .hero {
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      gap: 28px;
+      padding: 36px;
+    }
+    .hero-icon {
+      width: 112px;
+      height: 112px;
+      border-radius: 30px;
+    }
+  }
+
+  .block {
+    margin-top: 48px;
+  }
+  .block h2 {
+    font-size: var(--fs-h2);
+  }
+  .block-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .hint {
+    margin-top: 4px;
+    color: var(--ink-soft);
+  }
+  .gallery-nav {
+    display: flex;
+    gap: 8px;
+  }
+  .gallery-nav[hidden] {
+    display: none;
+  }
+  .round {
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--paper);
+    box-shadow: inset 0 0 0 2px var(--line);
+    color: var(--ink);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.18s cubic-bezier(0.3, 1.5, 0.6, 1);
+  }
+  .round:active {
+    transform: scale(0.92);
+  }
+  .gallery {
+    display: flex;
+    gap: 16px;
+    margin: 12px -16px 0;
+    padding: 8px 16px 20px;
+    overflow-x: auto;
+    list-style: none;
+    scroll-snap-type: x mandatory;
+    scroll-padding: 0 16px;
+    overscroll-behavior-x: contain;
+  }
+  .gallery-item {
+    flex: none;
+    width: min(56vw, 230px);
+    scroll-snap-align: start;
+  }
+  .gallery-item :global(.gallery-phone) {
+    width: 100%;
+  }
+
+  .steps {
+    display: grid;
+    gap: 16px;
+    margin: 16px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .step {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 16px;
+    align-items: start;
+    padding: 20px;
+    border-radius: var(--r-l);
+    background: var(--paper);
+    box-shadow: var(--shadow-s);
+  }
+  .step-no {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    margin-bottom: 8px;
+    border-radius: 50%;
+    background: var(--scene-button);
+    color: var(--scene-button-ink);
+    font-weight: 700;
+  }
+  .step-title {
+    margin-bottom: 4px;
+    font-size: var(--fs-h3);
+  }
+  .step-img {
+    width: min(28vw, 150px);
+    height: auto;
+    border-radius: 16px;
+    box-shadow: var(--shadow-s);
+  }
+  @media (max-width: 479px) {
+    .step {
+      grid-template-columns: 1fr;
+    }
+    .step-img {
+      width: min(60vw, 220px);
+      justify-self: center;
+    }
+  }
+
+  .trial {
+    display: grid;
+    justify-items: start;
+    gap: 12px;
+    padding: 24px 20px;
+    border-radius: var(--r-l);
+    background: var(--paper);
+    box-shadow: var(--shadow-s);
+  }
+  .sub-h {
+    font-size: var(--fs-h3);
+  }
+  .limits {
+    margin: 0;
+    padding-left: 1.4em;
+  }
+
+  .sukeo-says {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+  }
+  .says-svg {
+    flex: none;
+    width: min(38vw, 200px);
+    height: auto;
+  }
+  .says-bubble {
+    margin-bottom: 40%;
+    max-width: 420px;
+    --tail-x: 24px;
+  }
+  .says-bubble::after {
+    bottom: 14px;
+    left: -9px;
+    border: 10px solid transparent;
+    border-right-color: var(--paper);
+    border-left: 0;
+  }
+  @media (min-width: 640px) {
+    .says-bubble {
+      margin-bottom: 25%;
+    }
+  }
+
+  .log {
+    display: grid;
+    gap: 0;
+    margin: 16px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .log-item {
+    position: relative;
+    padding: 0 0 20px 24px;
+    border-left: 2px solid var(--line);
+  }
+  .log-item::before {
+    content: '';
+    position: absolute;
+    left: -7px;
+    top: 9px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--sukeo);
+  }
+  .log-date {
+    color: var(--ink-soft);
+    font-weight: 700;
+  }
+  .log-ver {
+    margin-left: 8px;
+  }
+
+  .credits {
+    color: var(--ink-soft);
+  }
+  .credits h2 {
+    font-size: var(--fs-h3);
+  }
+  .credit-label {
+    margin-top: 8px;
+  }
+  .credit-list {
+    margin: 4px 0 0;
+    padding-left: 1.4em;
+  }
+  .credit-list a {
+    text-underline-offset: 3px;
+  }
+</style>

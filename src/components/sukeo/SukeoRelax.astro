@@ -1,0 +1,90 @@
+---
+/**
+ * すけお（くつろぐ）。エンディング用。腹ばいになって、あごを床にのせて目を細める。
+ */
+import Eye from './Eye.astro';
+import Layer from './Layer.astro';
+import Shapes from './Shapes.astro';
+import SoftDefs from './SoftDefs.astro';
+import { C, along, blob, ellipse, scatter, spines, taper, taperW, toes, uid, type Pt, type Shape } from './parts';
+import { sideHead } from './side';
+
+interface Props {
+  label?: string;
+  class?: string;
+}
+const { label, class: className } = Astro.props;
+const fx = uid();
+
+const head = sideHead(228, 100);
+const core: Shape[] = [
+  ...head.shapes,
+  ellipse(140, 122, 64, 22), // 胴
+  ellipse(140, 132, 58, 12), // 床にぺたっとしたお腹
+  ellipse(186, 124, 22, 18), // 肩
+  ellipse(90, 124, 22, 18), // 腰
+];
+// しっぽは体のうしろから前へくるんと回す（体のうしろに描く）
+const tailLine: Pt[] = [[96, 126], [62, 132], [40, 144], [44, 156], [78, 160], [126, 160], [168, 156]];
+const tail = taper(tailLine, 22, 7);
+const tailBands = [0.18, 0.34, 0.5, 0.66, 0.82].map((t, i) => {
+  const p = along(tailLine, t);
+  return blob(p.x, p.y, 7.5 - i * 0.6, 3.2 - i * 0.25, p.deg + 90, 70 + i);
+});
+const bodyBlotches = [
+  blob(112, 110, 9, 5, 10, 61), blob(144, 106, 7, 4.4, -10, 62), blob(172, 114, 7, 4.5, 20, 63),
+  blob(96, 120, 6, 3.6, 30, 64), blob(130, 124, 5, 3.4, 0, 65),
+];
+const speckles = scatter(84, 104, 200, 132, 24, 13);
+const dorsalCrest = spines([[200, 106], [172, 102], [140, 100], [112, 102], [92, 108]], 13, 4.2, 4.4, 1, 0.6);
+
+function limb(line: Pt[], widths: number[], hx: number, hy: number, dirs: number[]) {
+  const t = toes(hx, hy, dirs, 8, 4.4);
+  return { shapes: [taperW(line, widths), ...t.shapes], pads: t.pads };
+}
+// たたんだ手足
+const front = limb([[184, 132], [198, 142], [214, 146]], [16, 11, 9], 216, 147, [-25, 5, 35, 65]);
+const back = limb([[96, 130], [112, 143], [128, 147]], [18, 12, 9], 130, 148, [-25, 5, 35, 65]);
+---
+
+<svg
+  viewBox="0 0 300 172"
+  xmlns="http://www.w3.org/2000/svg"
+  class:list={['sukeo', 'sukeo--relax', className]}
+  data-sukeo="relax"
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
+>
+  <SoftDefs id={fx} />
+
+  <Layer fx={fx} shapes={[tail]} fill={C.body} part="tail" origin="96 126">
+    <g filter={`url(#${fx}-blur)`} opacity="0.6">{tailBands.map((d) => <path d={d} fill={C.blotch} />)}</g>
+  </Layer>
+
+  <Layer fx={fx} shapes={core} fill={C.body} part="body">
+    <rect x="0" y="0" width="300" height="172" fill={`url(#${fx}-back)`} />
+    <g filter={`url(#${fx}-haze)`}>
+      <ellipse cx={head.throat.cx} cy={head.throat.cy} rx={head.throat.rx} ry={head.throat.ry} fill={C.belly} />
+    </g>
+    <g filter={`url(#${fx}-blur)`} opacity="0.6">
+      {[...bodyBlotches, ...head.blotches].map((d, i) => <path d={d} fill={i % 3 === 2 ? C.olive : C.blotch} />)}
+    </g>
+    {[...speckles, ...head.speckles].map((s) => <circle cx={s.x} cy={s.y} r={0.7 + s.k * 0.9} fill={C.speckle} opacity="0.75" />)}
+  </Layer>
+  <defs>
+    <linearGradient id={`${fx}-back`} x1="0" y1="66" x2="0" y2="146" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color={C.dorsal} stop-opacity="0.75" />
+      <stop offset="0.45" stop-color={C.dorsal} stop-opacity="0" />
+    </linearGradient>
+  </defs>
+
+  <Layer fx={fx} shapes={dorsalCrest} fill={C.crest} filter="thin" />
+  <Layer fx={fx} shapes={back.shapes} fill={C.body}><Shapes shapes={back.pads} fill={C.pad} /></Layer>
+  <Layer fx={fx} shapes={front.shapes} fill={C.body}><Shapes shapes={front.pads} fill={C.pad} /></Layer>
+
+  <Layer fx={fx} shapes={head.crest} fill={C.crest} filter="thin" />
+  <Eye fx={fx} x={head.eye.x} y={head.eye.y} r={head.eye.r} state="happy" />
+  <ellipse cx={head.nostril.cx} cy={head.nostril.cy} rx="1.7" ry="1.2" fill={C.mouth} />
+  <path d={head.mouth} fill="none" stroke={C.mouth} stroke-width="1.9" stroke-linecap="round" />
+</svg>

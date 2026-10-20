@@ -1,0 +1,108 @@
+/*
+ * すけおの暮らし道具箱：デザインの基本値（色・文字・角丸・影）。
+ * シーンごとの色は [data-scene] で切り替える。
+ */
+:root {
+  /* 土台 */
+  --cream: #fbf6ec;
+  --paper: #fffdf8;
+  --ink: #3a2a1e;
+  --ink-soft: #6b5544;
+  --line: #e8dcc8;
+
+  /* すけおの色（アクセントとして使う） */
+  --sukeo: #e9a04e;
+  --sukeo-deep: #a65e26;
+
+  /* ステータス */
+  --badge-live-bg: #e3efd6;
+  --badge-live-ink: #3d6627;
+  --badge-dev-bg: #fbe6c6;
+  --badge-dev-ink: #84501a;
+  --badge-idea-bg: #ebe4f2;
+  --badge-idea-ink: #574775;
+  --badge-soon-bg: #f1e7d8;
+  --badge-soon-ink: #75573a;
+
+  /* 文字 */
+  --font: 'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', 'Yu Gothic', sans-serif;
+  --fs-body: 1.0625rem; /* 17px */
+  --fs-small: 1rem; /* 16px（これより小さくしない） */
+  --fs-h3: 1.25rem;
+  --fs-h2: clamp(1.5rem, 1.1rem + 2vw, 2rem);
+  --fs-h1: clamp(1.875rem, 1.2rem + 3.4vw, 3rem);
+  --lh-body: 1.9;
+  --lh-head: 1.45;
+
+  /* 形 */
+  --r-s: 12px;
+  --r-m: 20px;
+  --r-l: 28px;
+  --r-pill: 999px;
+  --shadow-s: 0 1px 2px rgb(58 42 30 / 0.06), 0 2px 8px rgb(58 42 30 / 0.05);
+  --shadow-m: 0 2px 4px rgb(58 42 30 / 0.06), 0 8px 24px rgb(58 42 30 / 0.08);
+
+  /* シーンの色（初期値＝壁） */
+  --scene-bg: #f4eadb;
+  --scene-bg2: #efe1cb;
+  --scene-accent: #e2a24a;
+  --scene-ink: #3a2a1e;
+  --scene-ink-soft: #6b5544;
+  --scene-button: #8a5418;
+  --scene-button-ink: #fffdf8;
+}
+
+/* 0 壁：朝の光があたる、あたたかい漆喰の壁 */
+[data-scene='wall'] {
+  --scene-bg: #f4eadb;
+  --scene-bg2: #efe1cb;
+  --scene-accent: #e2a24a;
+  --scene-ink: #3a2a1e;
+  --scene-ink-soft: #6b5544;
+  --scene-button: #8a5418;
+  --scene-button-ink: #fffdf8;
+}
+
+/* 1 キッチン：暖色。トマトとテラコッタ */
+[data-scene='kitchen'] {
+  --scene-bg: #fbecdd;
+  --scene-bg2: #f6dcc4;
+  --scene-accent: #e07a55;
+  --scene-ink: #3a2a1e;
+  --scene-ink-soft: #6b5544;
+  --scene-button: #a8462a;
+  --scene-button-ink: #fffdf8;
+}
+
+/* 2 ベランダ・窓辺：若草色 */
+[data-scene='veranda'] {
+  --scene-bg: #edf3e2;
+  --scene-bg2: #dde9cc;
+  --scene-accent: #8dba63;
+  --scene-ink: #2f3a24;
+  --scene-ink-soft: #55623f;
+  --scene-button: #46702c;
+  --scene-button-ink: #fffdf8;
+}
+
+/* 3 テラリウム：深い緑。文字は明るく */
+[data-scene='terrarium'] {
+  --scene-bg: #23463a;
+  --scene-bg2: #1a382e;
+  --scene-accent: #8cc49a;
+  --scene-ink: #f6efe2;
+  --scene-ink-soft: #cddfcf;
+  --scene-button: #f0c27a;
+  --scene-button-ink: #2b2016;
+}
+
+/* 4 エンディング：夜のすけおの家。ランプのあかり */
+[data-scene='home'] {
+  --scene-bg: #26352f;
+  --scene-bg2: #1d2b26;
+  --scene-accent: #f3c47f;
+  --scene-ink: #f6efe2;
+  --scene-ink-soft: #d9cfbf;
+  --scene-button: #f3c47f;
+  --scene-button-ink: #2b2016;
+}

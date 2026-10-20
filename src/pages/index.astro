@@ -1,0 +1,244 @@
+---
+/**
+ * トップページ「すけおの暮らし散歩」。
+ * 0 壁（オープニング）→ アプリのシーン（order 順）→ すけおの家（エンディング）。
+ * アプリは src/content/apps/*.md を足すだけで、ここにシーンが増える。
+ *
+ * JS がない・「視差効果を減らす」がオンのときは、各シーンが縦に並ぶだけの普通のページとして読める。
+ * JS があるときの演出は src/scripts/story.ts。
+ */
+import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Jp from '../components/Jp.astro';
+import PhoneMock from '../components/PhoneMock.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import StatusBadge from '../components/StatusBadge.astro';
+import TrialButton from '../components/TrialButton.astro';
+import Chars from '../components/top/Chars.astro';
+import SukeoFront from '../components/sukeo/SukeoFront.astro';
+import SukeoRelax from '../components/sukeo/SukeoRelax.astro';
+import SukeoSide from '../components/sukeo/SukeoSide.astro';
+import SukeoWall from '../components/sukeo/SukeoWall.astro';
+import { BACKGROUNDS } from '../scenes/backgrounds';
+import { SCENES, type SceneKey } from '../scenes/keys';
+import { SITE } from '../site.config';
+import '../styles/top.css';
+
+const apps = (await getCollection('apps')).map((e) => e.data).sort((a, b) => a.order - b.order);
+const slugs = new Set<string>();
+for (const a of apps) {
+  if (slugs.has(a.slug)) throw new Error(`slug が重複しています：${a.slug}`);
+  slugs.add(a.slug);
+}
+
+const opening = {
+  key: 'wall' as SceneKey,
+  line: 'おはよう。今日も、暮らしをちょっと楽にしにいこっか。',
+};
+const ending = {
+  key: 'home' as SceneKey,
+  title: '今日も、おつかれさま。',
+  line: '道具箱は、これからも少しずつ増えていくよ。',
+};
+const total = apps.length + 2;
+const sceneNames = [
+  '朝の壁',
+  ...apps.map((a) => SCENES[a.scene as SceneKey].label),
+  'すけおの家',
+];
+const BgWall = BACKGROUNDS[opening.key];
+const BgHome = BACKGROUNDS[ending.key];
+const finished = apps.filter((a) => a.status !== '構想中');
+---
+
+<BaseLayout scene="wall" bodyClass="top">
+  <SiteHeader onTop />
+
+  <!-- 背景を重ねて置く場所（JS で各シーンの背景をここへ集め、スクロールに合わせて入れかえる） -->
+  <div class="stage" aria-hidden="true" data-stage></div>
+
+  <main id="main">
+    <!-- 0 壁 -->
+    <section class="scene scene--opening" id="scene-0" data-scene={opening.key} data-index="0" aria-labelledby="title-0">
+      <div class="scene-art" aria-hidden="true" data-art><BgWall /></div>
+      <div class="scene-inner">
+        <div class="scene-text">
+          <p class="eyebrow reveal">{SITE.tagline}</p>
+          <h1 class="site-title" id="title-0">
+            <span class="title-line"><Chars text="すけおの" /></span>
+            <span class="title-line"><Chars text="暮らし道具箱" /></span>
+          </h1>
+          <p class="bubble opening-bubble reveal"><Jp text={opening.line} /></p>
+        </div>
+        <div class="visual opening-visual">
+          <div class="wall-sukeo" data-wall>
+            <SukeoWall wakeable label="壁にはりついたクレステッドゲッコーのすけお" class="wall-svg" />
+          </div>
+          <p class="scroll-hint reveal" aria-hidden="true">スクロールしてね<span class="scroll-arrow">↓</span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- アプリのシーン -->
+    {
+      apps.map((app, i) => {
+        const index = i + 1;
+        const Bg = BACKGROUNDS[app.scene as SceneKey];
+        const idea = app.status === '構想中';
+        return (
+          <section
+            class:list={['scene', idea ? 'scene--idea' : 'scene--app']}
+            id={`scene-${index}`}
+            data-scene={app.scene}
+            data-index={index}
+            data-shots={app.screenshots?.length ?? 0}
+            aria-labelledby={`title-${index}`}
+          >
+            <div class="scene-art" aria-hidden="true" data-art>
+              <Bg />
+            </div>
+            <div class="scene-inner">
+              {idea ? (
+                <>
+                  <div class="scene-text">
+                    <p class="scene-no reveal">
+                      {String(index).padStart(2, '0')} / {SCENES[app.scene as SceneKey].label}
+                    </p>
+                    <h2 class="coming-title" id={`title-${index}`}>
+                      <span class="coming-label">
+                        <Chars text="COMING SOON" />
+                      </span>
+                      <span class="sr-only">：構想中の新しいアプリ</span>
+                    </h2>
+                    <p class="coming-copy reveal">
+                      <Jp text="新しい道具を、ただいま考え中。名前も中身も、もう少しだけ秘密です。" />
+                    </p>
+                  </div>
+                  <div class="visual">
+                    <div class="coming-card reveal" aria-hidden="true">
+                      <div class="coming-icon" />
+                      <p class="coming-name">？？？？？？</p>
+                      <StatusBadge status={app.status} />
+                    </div>
+                    <div class="talker" data-stand>
+                      <p class="bubble talker-bubble">
+                        <Jp text={app.sukeoLine} />
+                      </p>
+                      <SukeoFront pose="sit" class="talker-svg" />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div class="scene-text">
+                    <p class="scene-no reveal">
+                      {String(index).padStart(2, '0')} / {SCENES[app.scene as SceneKey].label}
+                    </p>
+                    <div class="app-head">
+                      {app.icon && <Image src={app.icon} alt="" width={64} height={64} densities={[1, 2]} class="app-icon reveal" />}
+                      <div class="app-title">
+                        <span class="reveal">
+                          <StatusBadge status={app.status} />
+                        </span>
+                        <h2 class="app-name" id={`title-${index}`}>
+                          <Chars text={app.name} />
+                        </h2>
+                      </div>
+                    </div>
+                    <p class="app-copy reveal">
+                      <Jp text={app.catchcopy} />
+                    </p>
+                    <div class="actions reveal">
+                      <TrialButton url={app.trialUrl} name={app.name} />
+                      <a class="btn btn-ghost" href={`/apps/${app.slug}/`}>
+                        詳しく見る<span class="sr-only">（{app.name}）</span>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="visual">
+                    <PhoneMock shots={app.screenshots} icon={app.icon} class="scene-phone" />
+                    <div class="talker" data-stand>
+                      <p class="bubble talker-bubble">
+                        <Jp text={app.sukeoLine} />
+                      </p>
+                      <SukeoFront pose="talk" wink={i % 2 === 1} class="talker-svg" />
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </section>
+        );
+      })
+    }
+
+    <!-- すけおの家（エンディング） -->
+    <section
+      class="scene scene--ending"
+      id={`scene-${total - 1}`}
+      data-scene={ending.key}
+      data-index={total - 1}
+      aria-labelledby={`title-${total - 1}`}
+    >
+      <div class="scene-art" aria-hidden="true" data-art><BgHome /></div>
+      <div class="scene-inner">
+        <div class="scene-text">
+          <p class="scene-no reveal">{String(total - 1).padStart(2, '0')} / すけおの家</p>
+          <h2 class="ending-title" id={`title-${total - 1}`}><Chars text={ending.title} /></h2>
+          <p class="ending-copy reveal"><Jp text={ending.line} /></p>
+          <ul class="ending-links reveal">
+            {
+              finished.map((a) => (
+                <li>
+                  <a class="btn btn-ghost" href={`/apps/${a.slug}/`}>
+                    {a.name}
+                    <span aria-hidden="true">→</span>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+        <div class="visual ending-visual">
+          <div class="relaxer" data-stand>
+            <SukeoRelax label="葉っぱのハンモックでくつろぐすけお" class="relax-svg" />
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 歩くすけお（シーンとシーンの間で、横向きで歩いて移動する） -->
+  <div class="walker" aria-hidden="true" data-walker>
+    <SukeoSide class="walker-svg" />
+  </div>
+
+  <!-- 進み具合と、前へ／次へ -->
+  <nav class="progress" aria-label="シーンの移動" data-progress>
+    <a class="progress-arrow" href="#scene-0" data-prev aria-label="前のシーンへ">
+      <span aria-hidden="true">↑</span>
+    </a>
+    <ol class="progress-dots">
+      {
+        sceneNames.map((name, i) => (
+          <li>
+            <a href={`#scene-${i}`} class="progress-dot" data-dot={i} aria-current={i === 0 ? 'step' : undefined}>
+              <span aria-hidden="true">{i}</span>
+              <span class="sr-only">
+                {i}：{name}
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+    <a class="progress-arrow" href="#scene-1" data-next aria-label="次のシーンへ">
+      <span aria-hidden="true">↓</span>
+    </a>
+  </nav>
+
+  <script>
+    import '../scripts/story';
+  </script>
+</BaseLayout>

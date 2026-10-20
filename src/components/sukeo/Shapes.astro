@@ -1,0 +1,22 @@
+---
+/** Shape の配列を、塗りだけで描く */
+import type { Shape } from './parts';
+
+interface Props {
+  shapes: Shape[];
+  fill?: string;
+}
+const { shapes, fill } = Astro.props;
+---
+
+{
+  shapes.map((s) =>
+    s.kind === 'circle' ? (
+      <circle cx={s.cx} cy={s.cy} r={s.r} fill={fill} />
+    ) : s.kind === 'ellipse' ? (
+      <ellipse cx={s.cx} cy={s.cy} rx={s.rx} ry={s.ry} fill={fill} transform={s.rot ? `rotate(${s.rot} ${s.cx} ${s.cy})` : undefined} />
+    ) : (
+      <path d={s.d} fill={fill} />
+    ),
+  )
+}

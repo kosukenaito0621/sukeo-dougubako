@@ -1,0 +1,102 @@
+---
+/**
+ * すけお（横向き・右向き）。スクロールで歩かせる用。
+ * 頭・首・胴・しっぽは1つの形（つなぎ目なし）。脚は付け根（data-origin）を軸に振る。
+ */
+import Eye from './Eye.astro';
+import Layer from './Layer.astro';
+import Shapes from './Shapes.astro';
+import SoftDefs from './SoftDefs.astro';
+import { C, along, blob, ellipse, scatter, spines, taper, taperW, toes, uid, type Pt, type Shape } from './parts';
+import { sideHead } from './side';
+
+interface Props {
+  label?: string;
+  class?: string;
+}
+const { label, class: className } = Astro.props;
+const fx = uid();
+
+const head = sideHead(236, 84);
+const tailLine: Pt[] = [[106, 110], [74, 116], [48, 112], [30, 100], [24, 82], [32, 68], [46, 64], [56, 72], [52, 82], [44, 82]];
+const core: Shape[] = [
+  ...head.shapes,
+  ellipse(146, 112, 60, 25), // 胴
+  ellipse(146, 122, 50, 18), // お腹のたるみ
+  ellipse(192, 112, 24, 22), // 肩
+  ellipse(100, 114, 22, 20), // 腰
+  taper(tailLine, 24, 5),
+];
+const tailBands = [0.16, 0.3, 0.44, 0.58, 0.72].map((t, i) => {
+  const p = along(tailLine, t);
+  return blob(p.x, p.y, 8 - i * 0.8, 3.6 - i * 0.3, p.deg + 90, 30 + i);
+});
+const bodyBlotches = [
+  blob(118, 100, 9, 5, 10, 11), blob(150, 96, 7, 4.4, -10, 12), blob(178, 104, 7.5, 4.6, 20, 13),
+  blob(132, 116, 5.5, 3.4, 0, 14), blob(102, 108, 6, 3.6, 30, 15), blob(164, 120, 5, 3, 10, 16),
+];
+const speckles = scatter(90, 92, 206, 126, 26, 3);
+const dorsalCrest = spines([[200, 92], [172, 88], [146, 87], [120, 89], [100, 96]], 13, 4.4, 4.4, 1, 0.6);
+
+function leg(line: Pt[], widths: number[], hand: { x: number; y: number; dirs: number[] }) {
+  const t = toes(hand.x, hand.y, hand.dirs, 9, 4.6);
+  return { shapes: [taperW(line, widths), ...t.shapes], pads: t.pads };
+}
+const legs = {
+  farFront: leg([[206, 116], [214, 132], [222, 146], [226, 152]], [14, 10, 9, 8], { x: 228, y: 154, dirs: [-30, 0, 30, 155] }),
+  farBack: leg([[94, 118], [84, 132], [80, 146], [78, 152]], [16, 11, 9, 8], { x: 78, y: 155, dirs: [-20, 10, 40, 160] }),
+  nearFront: leg([[196, 120], [188, 136], [192, 150], [198, 156]], [16, 11, 10, 9], { x: 200, y: 157, dirs: [-25, 5, 35, 155] }),
+  nearBack: leg([[104, 122], [118, 134], [114, 150], [110, 156]], [19, 13, 10, 9], { x: 108, y: 158, dirs: [-20, 10, 40, 165] }),
+};
+---
+
+<svg
+  viewBox="0 0 300 180"
+  xmlns="http://www.w3.org/2000/svg"
+  class:list={['sukeo', 'sukeo--side', className]}
+  data-sukeo="side"
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
+>
+  <SoftDefs id={fx} />
+  <defs>
+    <linearGradient id={`${fx}-back`} x1="0" y1="50" x2="0" y2="140" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color={C.dorsal} stop-opacity="0.75" />
+      <stop offset="0.45" stop-color={C.dorsal} stop-opacity="0" />
+    </linearGradient>
+  </defs>
+
+  <g data-part="walker">
+    <Layer fx={fx} shapes={legs.farFront.shapes} fill={C.far} part="leg-far-front" origin="206 116" />
+    <Layer fx={fx} shapes={legs.farBack.shapes} fill={C.far} part="leg-far-back" origin="94 118" />
+
+    <Layer fx={fx} shapes={core} fill={C.body} part="body">
+      <rect x="0" y="0" width="300" height="180" fill={`url(#${fx}-back)`} />
+      <g filter={`url(#${fx}-haze)`}>
+        <ellipse cx="148" cy="140" rx="56" ry="10" fill={C.belly} />
+        <ellipse cx={head.throat.cx} cy={head.throat.cy} rx={head.throat.rx} ry={head.throat.ry} fill={C.belly} />
+      </g>
+      <g filter={`url(#${fx}-blur)`} opacity="0.6">
+        {[...bodyBlotches, ...head.blotches].map((d, i) => <path d={d} fill={i % 3 === 2 ? C.olive : C.blotch} />)}
+        {tailBands.map((d) => <path d={d} fill={C.blotch} />)}
+      </g>
+      {[...speckles, ...head.speckles].map((s) => <circle cx={s.x} cy={s.y} r={0.7 + s.k * 0.9} fill={C.speckle} opacity="0.75" />)}
+    </Layer>
+
+    <Layer fx={fx} shapes={dorsalCrest} fill={C.crest} filter="thin" />
+
+    <Layer fx={fx} shapes={legs.nearBack.shapes} fill={C.body} part="leg-near-back" origin="104 122">
+      <Shapes shapes={legs.nearBack.pads} fill={C.pad} />
+    </Layer>
+    <Layer fx={fx} shapes={legs.nearFront.shapes} fill={C.body} part="leg-near-front" origin="196 120">
+      <Shapes shapes={legs.nearFront.pads} fill={C.pad} />
+    </Layer>
+
+    <!-- 顔 -->
+    <Layer fx={fx} shapes={head.crest} fill={C.crest} filter="thin" />
+    <Eye fx={fx} x={head.eye.x} y={head.eye.y} r={head.eye.r} />
+    <ellipse cx={head.nostril.cx} cy={head.nostril.cy} rx="1.7" ry="1.2" fill={C.mouth} />
+    <path d={head.mouth} fill="none" stroke={C.mouth} stroke-width="1.9" stroke-linecap="round" />
+  </g>
+</svg>
