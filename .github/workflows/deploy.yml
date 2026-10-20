@@ -1,4 +1,5 @@
 # main への push でビルドし、Cloudflare Workers にデプロイする。PR ではビルドとチェックだけ
+# デプロイは、リポジトリ変数 DEPLOY_ENABLED が true のときだけ（シークレットを登録してから有効にする）
 name: build-and-deploy
 
 on:
@@ -32,7 +33,7 @@ jobs:
           include-hidden-files: true
 
   deploy:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true'
     needs: build
     runs-on: ubuntu-latest
     steps:

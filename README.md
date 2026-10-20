@@ -92,6 +92,8 @@ main ブランチに push すると、GitHub Actions がビルドして Cloudfla
 | `CLOUDFLARE_API_TOKEN` | Cloudflare の API トークン（「Edit Cloudflare Workers」のテンプレートで作成） |
 | `CLOUDFLARE_ACCOUNT_ID` | Cloudflare のアカウント ID |
 
+登録したら、同じ画面の Variables タブで `DEPLOY_ENABLED` を `true` にすると、自動デプロイが有効になります。
+
 手元から出すときは `npx wrangler login` のあと `npm run deploy`。
 前の版に戻したいときは、Cloudflare のダッシュボード（Workers → sukeo-dougubako → Deployments）でロールバックするか、git で戻して push します。
 
