@@ -46,16 +46,18 @@ const { shots = [], icon, class: className, eager = false } = Astro.props;
     position: relative;
     aspect-ratio: 390 / 844;
     border-radius: 13% / 6%;
-    padding: 3.2%;
     background: #2b2016;
     box-shadow:
       0 2px 4px rgb(58 42 30 / 0.12),
       0 18px 40px rgb(58 42 30 / 0.22);
   }
+  /*
+   * 画面は枠の内側に置く。padding の % は「親の幅」が基準になり、PC で縁が太くなりすぎるので、
+   * 枠自身の大きさが基準になる inset（上下は高さ、左右は幅の %）で、縁が同じ太さになるようにする
+   */
   .phone-screen {
-    position: relative;
-    width: 100%;
-    height: 100%;
+    position: absolute;
+    inset: 1.5% 3.2%;
     overflow: hidden;
     border-radius: 11% / 5.2%;
     background: #f4efe4;
