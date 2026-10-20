@@ -6,6 +6,8 @@ on:
   push:
     branches: [main]
   pull_request:
+  # Actions の画面から手動でも実行できる
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -33,7 +35,7 @@ jobs:
           include-hidden-files: true
 
   deploy:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true'
     needs: build
     runs-on: ubuntu-latest
     steps:
