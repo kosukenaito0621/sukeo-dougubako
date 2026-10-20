@@ -94,7 +94,11 @@ export async function trimFonts(distDir) {
     await writeFile(cssFile, next);
   }
 
-  // もう使わない分割ファイルを消す
+  // もう使わない分割ファイル（woff2 と、古いブラウザ用の woff）を消す
   for (const f of replacedFiles) await rm(join(astroDir, f), { force: true });
+  const css = (await Promise.all((await files(astroDir, '.css')).map((f) => readFile(f, 'utf8')))).join('');
+  for (const f of await files(astroDir, '.woff')) {
+    if (!css.includes(basename(f))) await rm(f, { force: true });
+  }
   return report;
 }
