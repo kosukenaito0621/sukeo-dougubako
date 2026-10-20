@@ -6,6 +6,8 @@ export const SCENES = {
   wall: { label: '壁', note: 'オープニング' },
   kitchen: { label: 'キッチン', note: '' },
   veranda: { label: 'ベランダ・窓辺', note: '' },
+  desk: { label: '机', note: '' },
+  entrance: { label: '玄関', note: '' },
   terrarium: { label: 'テラリウム', note: '' },
   home: { label: 'すけおの家', note: 'エンディング' },
 } as const;

@@ -2,6 +2,8 @@
  * シーン名 → 背景の絵（src/components/scenes/*.astro）。
  * 新しいシーンを足すときは、ここと keys.ts と src/styles/tokens.css の3か所に足す（README 参照）。
  */
+import SceneDesk from '../components/scenes/SceneDesk.astro';
+import SceneEntrance from '../components/scenes/SceneEntrance.astro';
 import SceneHome from '../components/scenes/SceneHome.astro';
 import SceneKitchen from '../components/scenes/SceneKitchen.astro';
 import SceneTerrarium from '../components/scenes/SceneTerrarium.astro';
@@ -13,6 +15,8 @@ export const BACKGROUNDS: Record<SceneKey, typeof SceneWall> = {
   wall: SceneWall,
   kitchen: SceneKitchen,
   veranda: SceneVeranda,
+  desk: SceneDesk,
+  entrance: SceneEntrance,
   terrarium: SceneTerrarium,
   home: SceneHome,
 };

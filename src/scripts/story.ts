@@ -58,6 +58,11 @@ function setCurrent(i: number) {
     next.setAttribute('aria-disabled', String(i === last));
   }
   html.dataset.scene = sections[i]?.dataset.scene ?? 'wall';
+  // メニューの場面一覧に「いまここ」を付ける
+  document.querySelectorAll<HTMLElement>('[data-menu-scene]').forEach((a) => {
+    if (Number(a.dataset.menuScene) === i) a.setAttribute('aria-current', 'location');
+    else a.removeAttribute('aria-current');
+  });
 }
 
 const io = new IntersectionObserver(
@@ -144,10 +149,13 @@ if (motion) {
     section.classList.add('is-revealed');
   }
 
-  // スクショが多いシーンは、そのぶん長くスクロールして、スクショを1枚ずつ見せる
-  sections.forEach((s) => {
+  // シーンの長さ：スクショが多いシーンは、そのぶん長くスクロールしてスクショを1枚ずつ見せる。
+  // 最後のシーン以外は、すけおが次の場所へ歩いていくぶん（TAIL）も長くとる
+  const TAIL = 50; // svh
+  sections.forEach((s, i) => {
     const shots = Number(s.dataset.shots ?? 0);
-    if (shots > 1) s.style.height = `calc(100svh + ${(shots - 1) * 32}svh)`;
+    const extra = Math.max(0, shots - 1) * 32 + (i < sections.length - 1 ? TAIL : 0);
+    if (extra > 0) s.style.height = `calc(100svh + ${extra}svh)`;
   });
   sections.forEach((s) => {
     const phone = s.querySelector<HTMLElement>('[data-phone]');
@@ -157,7 +165,7 @@ if (motion) {
       ScrollTrigger.create({
         trigger: s,
         start: 'top top',
-        end: 'bottom bottom',
+        end: () => (s === sections[sections.length - 1] ? 'bottom bottom' : `bottom ${100 + TAIL}%`),
         onUpdate: (self) => {
           const k = Math.min(imgs.length - 1, Math.floor(self.progress * imgs.length));
           imgs.forEach((img, j) => img.classList.toggle('is-on', j === k));
@@ -192,6 +200,10 @@ if (motion) {
   const P: number[] = sections.map((_, i) => (i === 0 ? 1 : 0));
   let spots = sections.map((_, i) => spot(i));
 
+  /** 歩くすけおの目標と、いまの位置 */
+  let target = { x: -300, bottom: 16, visible: 0, ww: 200 };
+  const now = { x: -300, bottom: 16 };
+
   /** すべての切り替えの進み具合から、背景・すけお・歩くすけおの状態をまとめて決める */
   function render() {
     // 背景：後ろのシーンほど上に重なっているので、入ってくる側の濃さだけ決めればよい
@@ -216,7 +228,7 @@ if (motion) {
     if (!walkerBox || !cycle) return;
     const k = P.findIndex((p, i) => i > 0 && p > 0 && p < 1);
     if (k < 0) {
-      walkerBox.style.opacity = '0';
+      target = { ...target, visible: 0 };
       return;
     }
     const p = P[k]!;
@@ -242,16 +254,34 @@ if (motion) {
       bottom = b ? b.bottom : 16;
       visible = range(p, 0.55, 0.56) * (1 - range(p, 0.95, 1));
     }
-    walkerBox.style.transform = `translate3d(${x.toFixed(1)}px, 0, 0)`;
-    walkerBox.style.bottom = `${bottom.toFixed(1)}px`;
-    walkerBox.style.opacity = String(visible);
-    cycle.progress((p * 16) % 1);
+    // 位置は目標だけ決めて、毎フレーム少しずつ近づける（下の follow）
+    target = { x, bottom, visible, ww };
   }
+
+  /** スクロールより少し遅れて、ふんわりついてくる。脚は進んだ距離に合わせて動かす（歩幅は体の幅の半分ほど） */
+  gsap.ticker.add((_t, dt) => {
+    if (!walkerBox || !cycle) return;
+    const k = 1 - Math.pow(0.86, dt / 16.7);
+    // 画面の右端から左端へ回りこむときなど、大きく離れたら追いかけずにその場へ移す
+    if (Math.abs(target.x - now.x) > window.innerWidth * 0.6 || target.visible === 0) {
+      now.x = target.x;
+      now.bottom = target.bottom;
+    } else {
+      now.x += (target.x - now.x) * k;
+      now.bottom += (target.bottom - now.bottom) * k;
+    }
+    walkerBox.style.transform = `translate3d(${now.x.toFixed(1)}px, 0, 0)`;
+    walkerBox.style.bottom = `${now.bottom.toFixed(1)}px`;
+    walkerBox.style.opacity = String(target.visible);
+    const stride = target.ww * 0.55;
+    cycle.progress((((now.x / stride) % 1) + 1) % 1);
+  });
 
   for (let i = 1; i < sections.length; i++) {
     ScrollTrigger.create({
       trigger: sections[i]!,
-      start: 'top bottom',
+      // 前のシーンの終わり（TAIL のぶん）から歩きはじめる
+      start: `top ${100 + TAIL}%`,
       end: 'top top',
       onRefresh: (self) => {
         // 位置の測りなおしと描きなおしは、全部の再計算が終わったあとに1回だけ（下の refresh）

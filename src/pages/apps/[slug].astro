@@ -27,7 +27,7 @@ const shots = app.screenshots ?? [];
 ---
 
 <BaseLayout title={app.name} description={`${app.name}：${app.catchcopy}`} scene={app.scene} bodyClass="detail">
-  <SiteHeader />
+  <SiteHeader current={app.slug} />
   <main id="main" class="detail-main">
     <p class="back back-top"><a href="/">← トップへ戻る</a></p>
 

@@ -3,29 +3,37 @@
  * 画面の上のヘッダー（ロゴとメニューボタン）と、全画面メニュー。
  * メニューは JS がなくても開ける（#menu へのリンクと :target）。JS があれば、
  * Esc で閉じる・フォーカスを中に閉じこめる・開いている間はスクロールを止める（src/scripts/menu.ts）。
+ * トップページでは、いま見ている場面に「いまここ」が付く（src/scripts/story.ts）。
  */
 import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
+import Jp from './Jp.astro';
+import StatusBadge from './StatusBadge.astro';
 import { SITE } from '../site.config';
-import { SCENES } from '../scenes/keys';
+import { SCENES, type SceneKey } from '../scenes/keys';
 
 interface Props {
-  /** トップページのときは、シーンへのリンクをページ内リンクにする */
+  /** トップページのときは、場面へのリンクをページ内リンクにする */
   onTop?: boolean;
+  /** 詳細ページのときは、そのアプリの slug（メニューで「いま見ているページ」にする） */
+  current?: string;
 }
-const { onTop = false } = Astro.props;
+const { onTop = false, current } = Astro.props;
 const apps = (await getCollection('apps')).map((e) => e.data).sort((a, b) => a.order - b.order);
 const top = onTop ? '' : '/';
 const sceneLinks = [
-  { href: `${top}#scene-0`, no: 0, label: '朝の壁', sub: 'はじまり' },
+  { href: `${top}#scene-0`, no: 0, key: 'wall' as SceneKey, label: '朝の壁', sub: 'はじまり' },
   ...apps.map((a, i) => ({
     href: `${top}#scene-${i + 1}`,
     no: i + 1,
-    label: SCENES[a.scene as keyof typeof SCENES].label,
+    key: a.scene as SceneKey,
+    label: SCENES[a.scene as SceneKey].label,
     sub: a.status === '構想中' ? 'COMING SOON' : a.name,
   })),
-  { href: `${top}#scene-${apps.length + 1}`, no: apps.length + 1, label: 'すけおの家', sub: 'おしまい' },
+  { href: `${top}#scene-${apps.length + 1}`, no: apps.length + 1, key: 'home' as SceneKey, label: 'すけおの家', sub: 'おしまい' },
 ];
 const details = apps.filter((a) => a.status !== '構想中');
+const ideas = apps.length - details.length;
 ---
 
 <header class="site-header">
@@ -33,58 +41,76 @@ const details = apps.filter((a) => a.status !== '構想中');
     <img src="/favicon.svg" alt="" width="36" height="36" class="logo-face" />
     <span class="logo-name">{SITE.name}</span>
   </a>
-  <a class="menu-open" href="#menu" aria-controls="menu" aria-expanded="false" data-menu-open>
+  <a class="menu-btn menu-open" href="#menu" aria-controls="menu" aria-expanded="false" data-menu-open>
     <span class="menu-icon" aria-hidden="true"><span></span><span></span><span></span></span>
     メニュー
   </a>
 </header>
 
 <nav id="menu" class="menu" aria-label="メニュー" data-menu>
+  <!-- ヘッダーと同じ位置に置き、「メニュー」ボタンが「とじる」に変わったように見せる -->
+  <div class="menu-bar">
+    <a class="logo" href="/" data-menu-link aria-label={`${SITE.name}（トップへ）`}>
+      <img src="/favicon.svg" alt="" width="36" height="36" class="logo-face" />
+      <span class="logo-name">{SITE.name}</span>
+    </a>
+    <a class="menu-btn menu-close" href="#" data-menu-close>
+      <span class="close-icon" aria-hidden="true">×</span>
+      とじる
+    </a>
+  </div>
+
   <div class="menu-inner">
-    <div class="menu-top">
-      <p class="menu-title">メニュー</p>
-      <a class="menu-close" href="#" data-menu-close>
-        <span aria-hidden="true">×</span>
-        閉じる
-      </a>
-    </div>
-    <div class="menu-cols">
-      <section aria-labelledby="menu-scenes">
-        <h2 id="menu-scenes" class="menu-h">すけおの暮らし散歩</h2>
-        <ol class="menu-scenes">
-          {
-            sceneLinks.map((s) => (
-              <li>
-                <a href={s.href} data-menu-link>
-                  <span class="menu-no" aria-hidden="true">
-                    {s.no}
+    <section aria-labelledby="menu-apps">
+      <h2 id="menu-apps" class="menu-h">アプリを見る</h2>
+      <ul class="app-cards">
+        {
+          details.map((a) => (
+            <li>
+              <a href={`/apps/${a.slug}/`} class="app-card" data-menu-link aria-current={a.slug === current ? 'page' : undefined}>
+                {a.icon && <Image src={a.icon} alt="" width={52} height={52} densities={[1, 2]} class="card-icon" />}
+                <span class="card-text">
+                  <span class="card-name">
+                    {a.name}
+                    <StatusBadge status={a.status} />
                   </span>
-                  <span class="menu-label">
-                    {s.label}
-                    <span class="menu-sub">{s.sub}</span>
+                  <span class="card-copy">
+                    <Jp text={a.catchcopy} />
                   </span>
-                </a>
-              </li>
-            ))
-          }
-        </ol>
-      </section>
-      <section aria-labelledby="menu-apps">
-        <h2 id="menu-apps" class="menu-h">アプリの詳しい説明</h2>
-        <ul class="menu-apps">
-          {
-            details.map((a) => (
-              <li>
-                <a href={`/apps/${a.slug}/`} data-menu-link>
-                  {a.name}
-                  <span aria-hidden="true">→</span>
-                </a>
-              </li>
-            ))
-          }
-        </ul>
-      </section>
-    </div>
+                  {a.slug === current && <span class="card-here">いま見ているページ</span>}
+                </span>
+                <span class="card-arrow" aria-hidden="true">
+                  →
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      {ideas > 0 && <p class="ideas">ほかに {ideas} つの道具を、ただいま考え中です。</p>}
+    </section>
+
+    <section aria-labelledby="menu-scenes">
+      <h2 id="menu-scenes" class="menu-h">場面へ移動する</h2>
+      <ol class="menu-scenes">
+        {
+          sceneLinks.map((s) => (
+            <li data-scene={s.key}>
+              <a href={s.href} data-menu-link data-menu-scene={onTop ? s.no : undefined}>
+                <span class="menu-no" aria-hidden="true">
+                  {s.no}
+                </span>
+                <span class="menu-label">
+                  {s.label}
+                  <span class="menu-sub">{s.sub}</span>
+                </span>
+                <span class="here">いまここ</span>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
   </div>
 </nav>
 
@@ -93,17 +119,20 @@ const details = apps.filter((a) => a.status !== '構想中');
 </script>
 
 <style>
+  .site-header,
+  .menu-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: max(10px, env(safe-area-inset-top)) 12px 10px 12px;
+  }
   .site-header {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     z-index: 40;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: max(10px, env(safe-area-inset-top)) 12px 10px 12px;
     pointer-events: none;
   }
   .site-header > * {
@@ -128,44 +157,73 @@ const details = apps.filter((a) => a.status !== '構想中');
     width: 36px;
     height: 36px;
   }
-  .menu-open,
-  .menu-close {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    min-height: 44px;
-    padding: 0 16px;
-    border-radius: var(--r-pill);
-    background: rgb(255 253 248 / 0.88);
-    box-shadow: var(--shadow-s);
-    color: var(--ink);
-    font-size: 1rem;
-    font-weight: 700;
-    text-decoration: none;
-    backdrop-filter: blur(6px);
-    transition: transform 0.18s cubic-bezier(0.3, 1.5, 0.6, 1);
-  }
-  .menu-open:active,
-  .menu-close:active {
-    transform: scale(0.95);
-  }
-  .menu-icon {
-    display: grid;
-    gap: 3px;
-  }
-  .menu-icon span {
-    display: block;
-    width: 16px;
-    height: 2px;
-    border-radius: 2px;
-    background: currentColor;
-  }
   @media (max-width: 359px) {
     .logo-name {
       display: none;
     }
   }
 
+  /* メニューボタン：すけお色で目立たせる。押すと少し縮む */
+  .menu-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+    padding: 0 20px 0 16px;
+    border-radius: var(--r-pill);
+    background: var(--sukeo);
+    box-shadow:
+      0 3px 0 #c47f32,
+      var(--shadow-s);
+    color: #2b2016;
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition:
+      transform 0.18s cubic-bezier(0.3, 1.5, 0.6, 1),
+      box-shadow 0.18s ease;
+  }
+  @media (hover: hover) {
+    .menu-btn:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        0 5px 0 #c47f32,
+        var(--shadow-s);
+    }
+  }
+  .menu-btn:active {
+    transform: translateY(2px) scale(0.97);
+    box-shadow:
+      0 1px 0 #c47f32,
+      var(--shadow-s);
+  }
+  .menu-icon {
+    display: grid;
+    gap: 4px;
+  }
+  .menu-icon span {
+    display: block;
+    width: 20px;
+    height: 2.5px;
+    border-radius: 2px;
+    background: currentColor;
+  }
+  .menu-icon span:nth-child(2) {
+    width: 14px;
+  }
+  .menu-close {
+    background: var(--ink);
+    box-shadow:
+      0 3px 0 #1a120c,
+      var(--shadow-s);
+    color: var(--paper);
+  }
+  .close-icon {
+    font-size: 1.4rem;
+    line-height: 1;
+  }
+
+  /* 全画面メニュー */
   .menu {
     position: fixed;
     inset: 0;
@@ -179,47 +237,103 @@ const details = apps.filter((a) => a.status !== '構想中');
   .menu:target,
   .menu.is-open {
     display: block;
+    animation: menu-in 0.25s ease both;
+  }
+  @keyframes menu-in {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+  }
+  .menu-bar {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--cream);
   }
   .menu-inner {
-    max-width: 960px;
-    margin: 0 auto;
-    padding: max(14px, env(safe-area-inset-top)) 16px 48px;
-  }
-  .menu-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 24px;
-  }
-  .menu-title {
-    font-size: 1.25rem;
-    font-weight: 700;
-  }
-  .menu-cols {
     display: grid;
     gap: 32px;
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 12px 16px 48px;
   }
-  @media (min-width: 760px) {
-    .menu-cols {
-      grid-template-columns: 1.3fr 1fr;
+  @media (min-width: 860px) {
+    .menu-inner {
+      grid-template-columns: 1.15fr 1fr;
       gap: 48px;
+      padding-top: 24px;
     }
   }
   .menu-h {
     margin-bottom: 12px;
-    color: var(--ink-soft);
-    font-size: 1rem;
+    font-size: var(--fs-h3);
   }
-  .menu-scenes,
-  .menu-apps {
+
+  .app-cards,
+  .menu-scenes {
     display: grid;
-    gap: 8px;
+    gap: 10px;
     margin: 0;
     padding: 0;
     list-style: none;
   }
-  .menu-scenes a,
-  .menu-apps a {
+  .app-card {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: var(--r-l);
+    background: var(--paper);
+    box-shadow: var(--shadow-s);
+    text-decoration: none;
+    transition:
+      transform 0.18s cubic-bezier(0.3, 1.5, 0.6, 1),
+      box-shadow 0.18s ease;
+  }
+  .app-card[aria-current='page'] {
+    box-shadow:
+      inset 0 0 0 3px var(--sukeo),
+      var(--shadow-s);
+  }
+  .card-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 15px;
+  }
+  .card-text {
+    display: grid;
+    gap: 2px;
+  }
+  .card-name {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 10px;
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+  .card-copy {
+    color: var(--ink-soft);
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+  .card-here {
+    color: var(--sukeo-deep);
+    font-size: 1rem;
+    font-weight: 700;
+  }
+  .card-arrow {
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+  .ideas {
+    margin-top: 12px;
+    color: var(--ink-soft);
+  }
+
+  .menu-scenes a {
     display: flex;
     align-items: center;
     gap: 14px;
@@ -234,12 +348,9 @@ const details = apps.filter((a) => a.status !== '構想中');
       transform 0.18s cubic-bezier(0.3, 1.5, 0.6, 1),
       box-shadow 0.18s ease;
   }
-  .menu-apps a {
-    justify-content: space-between;
-  }
   @media (hover: hover) {
-    .menu-scenes a:hover,
-    .menu-apps a:hover {
+    .app-card:hover,
+    .menu-scenes a:hover {
       transform: translateX(4px);
       box-shadow: var(--shadow-m);
     }
@@ -251,16 +362,35 @@ const details = apps.filter((a) => a.status !== '構想中');
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: var(--sukeo);
+    background: var(--scene-accent);
     color: #2b2016;
   }
   .menu-label {
     display: grid;
+    flex: 1;
     line-height: 1.5;
   }
   .menu-sub {
     color: var(--ink-soft);
     font-size: 1rem;
     font-weight: 500;
+  }
+  .here {
+    display: none;
+    padding: 0 10px;
+    border-radius: var(--r-pill);
+    background: var(--sukeo);
+    color: #2b2016;
+    font-size: 1rem;
+    line-height: 1.9;
+    white-space: nowrap;
+  }
+  .menu-scenes a[aria-current] {
+    box-shadow:
+      inset 0 0 0 3px var(--sukeo),
+      var(--shadow-s);
+  }
+  .menu-scenes a[aria-current] .here {
+    display: inline-block;
   }
 </style>

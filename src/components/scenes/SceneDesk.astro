@@ -1,0 +1,86 @@
+---
+/**
+ * シーン：机（ToDo 管理アプリ・構想中）。昼の光が入る窓、付箋だらけのコルクボード、ノートとペン立て。
+ */
+import { leaf, sid } from './shapes';
+
+const id = sid();
+const notes = [
+  { x: 236, y: 132, c: '#f7d774', r: -6 },
+  { x: 292, y: 126, c: '#f4b6c2', r: 5 },
+  { x: 250, y: 190, c: '#b8d8f0', r: 4 },
+  { x: 306, y: 196, c: '#c8e3a8', r: -4 },
+];
+const herb = [leaf(334, 606, 30, 7, -115), leaf(334, 606, 28, 7, -70), leaf(334, 608, 24, 6, -145), leaf(334, 608, 24, 6, -35)];
+---
+
+<svg viewBox="0 0 390 844" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="scene-bg">
+  <defs>
+    <linearGradient id={`${id}-wall`} x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4f7fa" />
+      <stop offset="1" stop-color="#e2eaf1" />
+    </linearGradient>
+    <linearGradient id={`${id}-sky`} x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d5eaf6" />
+      <stop offset="1" stop-color="#eef6f0" />
+    </linearGradient>
+    <filter id={`${id}-soft`} x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="10" /></filter>
+  </defs>
+
+  <rect width="390" height="844" fill={`url(#${id}-wall)`} />
+
+  <!-- 窓と、さしこむ光 -->
+  <rect x="24" y="84" width="150" height="190" rx="12" fill="#fbfcfd" />
+  <rect x="34" y="94" width="130" height="170" rx="6" fill={`url(#${id}-sky)`} />
+  <ellipse cx="80" cy="250" rx="40" ry="16" fill="#cfe5c4" />
+  <rect x="96" y="94" width="6" height="170" fill="#fbfcfd" />
+  <rect x="34" y="176" width="130" height="6" fill="#fbfcfd" />
+  <path d="M30 300 L 180 300 L 250 620 L 40 620 Z" fill="#ffffff" opacity="0.35" filter={`url(#${id}-soft)`} />
+
+  <!-- コルクボードと付箋 -->
+  <rect x="220" y="104" width="150" height="150" rx="10" fill="#d9b48a" />
+  <rect x="226" y="110" width="138" height="138" rx="7" fill="#e3c39b" />
+  {
+    notes.map((n) => (
+      <g transform={`rotate(${n.r} ${n.x + 22} ${n.y + 22})`}>
+        <rect x={n.x} y={n.y} width="44" height="44" rx="3" fill={n.c} />
+        <rect x={n.x + 7} y={n.y + 12} width="28" height="3" rx="1.5" fill="#000" opacity="0.12" />
+        <rect x={n.x + 7} y={n.y + 21} width="20" height="3" rx="1.5" fill="#000" opacity="0.12" />
+        <circle cx={n.x + 22} cy={n.y + 4} r="3.2" fill="#d0574a" />
+      </g>
+    ))
+  }
+
+  <!-- 壁かけの時計 -->
+  <circle cx="300" cy="330" r="30" fill="#fbfcfd" />
+  <circle cx="300" cy="330" r="30" fill="none" stroke="#c9d5e0" stroke-width="4" />
+  <path d="M300 330 L 300 312 M300 330 L 314 338" stroke="#4b5968" stroke-width="3" stroke-linecap="round" />
+
+  <!-- 机 -->
+  <rect x="0" y="628" width="390" height="20" rx="4" fill="#d2a26c" />
+  <rect x="0" y="648" width="390" height="30" fill="#b98a5a" />
+  <rect x="20" y="678" width="16" height="166" fill="#a87b4e" />
+  <rect x="354" y="678" width="16" height="166" fill="#a87b4e" />
+  <rect x="0" y="770" width="390" height="74" fill="#e1d4c0" opacity="0.6" />
+
+  <!-- 机の上：ノート・ペン立て・ライト・マグカップ・小さな鉢 -->
+  <g transform="rotate(-4 150 614)">
+    <rect x="96" y="596" width="112" height="34" rx="4" fill="#ffffff" />
+    <rect x="150" y="596" width="2" height="34" fill="#d5dde5" />
+    {[0, 1, 2].map((k) => <rect x="104" y={604 + k * 8} width="40" height="2" fill="#c3d2e0" />)}
+    {[0, 1, 2].map((k) => <rect x="158" y={604 + k * 8} width="40" height="2" fill="#c3d2e0" />)}
+    <path d="M160 604 L 164 608 L 171 600" fill="none" stroke="#3c6894" stroke-width="2" stroke-linecap="round" />
+  </g>
+  <rect x="226" y="584" width="30" height="44" rx="6" fill="#6e9ccc" />
+  <rect x="231" y="560" width="4" height="30" rx="2" fill="#f2c94c" transform="rotate(-8 233 575)" />
+  <rect x="240" y="556" width="4" height="34" rx="2" fill="#e07a55" />
+  <rect x="248" y="562" width="4" height="28" rx="2" fill="#8dba63" transform="rotate(10 250 576)" />
+  <path d="M300 628 L 300 560 L 262 520" fill="none" stroke="#4b5968" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M246 500 L 282 512 L 270 538 Z" fill="#4b5968" />
+  <ellipse cx="300" cy="628" rx="20" ry="5" fill="#4b5968" />
+  <ellipse cx="262" cy="548" rx="40" ry="16" fill="#fff6d8" opacity="0.6" filter={`url(#${id}-soft)`} />
+  <rect x="44" y="602" width="28" height="26" rx="6" fill="#f4f1ea" />
+  <path d="M72 608 C 82 608, 82 622, 72 622" fill="none" stroke="#f4f1ea" stroke-width="4" />
+  <g fill="#7fae5c">{herb.map((d) => <path d={d} />)}</g>
+  <path d="M322 604 L 346 604 L 342 628 L 326 628 Z" fill="#d07a52" />
+</svg>

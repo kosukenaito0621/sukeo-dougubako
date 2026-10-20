@@ -85,7 +85,29 @@
   --scene-button-ink: #fffdf8;
 }
 
-/* 3 テラリウム：深い緑。文字は明るく */
+/* 机：昼の光と、インクの青 */
+[data-scene='desk'] {
+  --scene-bg: #eef2f6;
+  --scene-bg2: #dfe7ef;
+  --scene-accent: #6e9ccc;
+  --scene-ink: #26313d;
+  --scene-ink-soft: #4b5968;
+  --scene-button: #3c6894;
+  --scene-button-ink: #fffdf8;
+}
+
+/* 玄関：旅に出たくなる、海の青緑 */
+[data-scene='entrance'] {
+  --scene-bg: #e9f3f1;
+  --scene-bg2: #d6eae6;
+  --scene-accent: #4fb2a7;
+  --scene-ink: #22332f;
+  --scene-ink-soft: #475e59;
+  --scene-button: #2d7a71;
+  --scene-button-ink: #fffdf8;
+}
+
+/* テラリウム：深い緑。文字は明るく */
 [data-scene='terrarium'] {
   --scene-bg: #23463a;
   --scene-bg2: #1a382e;

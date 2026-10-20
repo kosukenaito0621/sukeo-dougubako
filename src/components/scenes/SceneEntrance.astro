@@ -1,0 +1,83 @@
+---
+/**
+ * シーン：玄関（旅行の割り勘アプリ・構想中）。旅先の地図、扉、帽子、スニーカー、ステッカーを貼ったスーツケース。
+ */
+import { heartLeaf, sid } from './shapes';
+
+const id = sid();
+const plant = [heartLeaf(40, 640, 46, -120), heartLeaf(44, 640, 42, -70), heartLeaf(38, 646, 40, -160), heartLeaf(46, 646, 38, -30)];
+---
+
+<svg viewBox="0 0 390 844" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="scene-bg">
+  <defs>
+    <linearGradient id={`${id}-wall`} x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f6f2eb" />
+      <stop offset="1" stop-color="#ebe1d2" />
+    </linearGradient>
+    <linearGradient id={`${id}-door`} x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#a7754a" />
+      <stop offset="1" stop-color="#8f6240" />
+    </linearGradient>
+    <filter id={`${id}-soft`} x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="8" /></filter>
+  </defs>
+
+  <rect width="390" height="844" fill={`url(#${id}-wall)`} />
+
+  <!-- 扉 -->
+  <rect x="228" y="120" width="150" height="560" rx="6" fill="#d8c8b2" />
+  <rect x="238" y="130" width="130" height="550" rx="4" fill={`url(#${id}-door)`} />
+  <rect x="268" y="168" width="70" height="92" rx="35" fill="#e9f3f1" opacity="0.85" />
+  <rect x="252" y="300" width="102" height="140" rx="6" fill="#9c6b43" />
+  <rect x="252" y="470" width="102" height="150" rx="6" fill="#9c6b43" />
+  <circle cx="254" cy="456" r="7" fill="#e2c27a" />
+
+  <!-- 帽子と、かばん -->
+  <rect x="44" y="270" width="140" height="8" rx="4" fill="#b98a5a" />
+  <circle cx="74" cy="284" r="4" fill="#8f6240" />
+  <circle cx="150" cy="284" r="4" fill="#8f6240" />
+  <ellipse cx="74" cy="318" rx="36" ry="9" fill="#e9c98d" />
+  <path d="M52 316 C 54 288, 94 288, 96 316 Z" fill="#e9c98d" />
+  <rect x="52" y="304" width="44" height="7" fill="#4fb2a7" />
+  <path d="M136 288 C 128 300, 128 320, 130 330 L 170 330 C 172 320, 172 300, 164 288" fill="none" stroke="#8f6240" stroke-width="3" />
+  <rect x="124" y="320" width="54" height="56" rx="10" fill="#e07a55" />
+  <rect x="134" y="334" width="34" height="6" rx="3" fill="#c9623f" />
+
+  <!-- 旅先の地図（海と島と、点線の道のり）。文字と重ならないよう、帽子かけの下に -->
+  <g transform="translate(-6 316) scale(0.9)">
+  <rect x="26" y="96" width="170" height="122" rx="8" fill="#fbf8f2" />
+  <rect x="34" y="104" width="154" height="106" rx="4" fill="#cfe9ec" />
+  <path d="M50 190 C 60 150, 100 150, 110 170 C 120 190, 150 160, 170 176 C 176 196, 120 206, 50 200 Z" fill="#bfe0a8" />
+  <path d="M120 128 C 132 116, 160 120, 164 136 C 156 148, 128 146, 120 128 Z" fill="#bfe0a8" />
+  <path d="M74 182 C 96 150, 118 150, 142 134" fill="none" stroke="#e07a55" stroke-width="2.5" stroke-dasharray="4 5" stroke-linecap="round" />
+  <path d="M142 122 C 136 122, 134 130, 142 140 C 150 130, 148 122, 142 122 Z" fill="#e07a55" />
+  <circle cx="142" cy="128" r="2.2" fill="#fbf8f2" />
+
+  </g>
+
+  <!-- 玄関の段差と土間 -->
+  <rect x="0" y="680" width="390" height="18" fill="#c7b89f" />
+  <rect x="0" y="698" width="390" height="146" fill="#ddd5c6" />
+  {[0, 1, 2].map((k) => <rect x="0" y={730 + k * 40} width="390" height="2" fill="#cbc1af" />)}
+  {[0, 1, 2, 3].map((k) => <rect x={60 + k * 100} y="698" width="2" height="146" fill="#cbc1af" />)}
+
+  <!-- 観葉植物 -->
+  {plant.map((d, i) => <path d={d} fill={i % 2 ? '#5f9550' : '#6fa65c'} />)}
+  <path d="M26 650 L 58 650 L 54 690 L 30 690 Z" fill="#e8e0d0" />
+
+  <!-- スーツケース（ステッカーつき） -->
+  <ellipse cx="290" cy="790" rx="70" ry="10" fill="#000" opacity="0.08" filter={`url(#${id}-soft)`} />
+  <path d="M276 610 L 276 586 Q 276 578, 284 578 L 296 578 Q 304 578, 304 586 L 304 610" fill="none" stroke="#2d7a71" stroke-width="6" />
+  <rect x="236" y="608" width="108" height="176" rx="18" fill="#4fb2a7" />
+  {[0, 1, 2].map((k) => <rect x={258 + k * 30} y="620" width="4" height="152" rx="2" fill="#3f9a90" />)}
+  <circle cx="268" cy="660" r="16" fill="#f7d774" />
+  <rect x="294" y="690" width="36" height="24" rx="6" fill="#fbf8f2" transform="rotate(-10 312 702)" />
+  <circle cx="262" cy="734" r="12" fill="#f4b6c2" />
+  <circle cx="252" cy="788" r="7" fill="#2f3a36" />
+  <circle cx="328" cy="788" r="7" fill="#2f3a36" />
+
+  <!-- スニーカー -->
+  <path d="M96 776 C 96 760, 120 756, 132 762 C 146 768, 164 768, 170 780 L 170 788 L 96 788 Z" fill="#ffffff" />
+  <rect x="96" y="784" width="74" height="6" rx="3" fill="#4fb2a7" />
+  <path d="M132 784 C 132 770, 154 766, 164 772 C 176 778, 192 778, 196 790 L 196 796 L 132 796 Z" fill="#f8f6f1" />
+  <rect x="132" y="792" width="64" height="6" rx="3" fill="#e07a55" />
+</svg>

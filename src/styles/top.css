@@ -215,12 +215,22 @@ html.motion body {
   margin-top: 6px;
 }
 .coming-label {
-  color: var(--scene-accent);
+  /* 明るい場面ではボタンの色（背景と十分なコントラスト）。暗いテラリウムでは下でアクセント色に */
+  color: var(--scene-button);
   font-size: clamp(1.7rem, 7vw, 2.6rem);
   letter-spacing: 0.12em;
 }
 .coming-copy {
-  margin-top: 8px;
+  margin-top: 10px;
+  padding: 8px 14px;
+  border-radius: var(--r-m);
+  background: rgb(255 253 248 / 0.88);
+  color: var(--ink);
+}
+[data-scene='terrarium'] .coming-copy,
+[data-scene='home'] .coming-copy {
+  padding: 0;
+  background: none;
   color: var(--scene-ink-soft);
 }
 .coming-card {
@@ -230,17 +240,28 @@ html.motion body {
   width: min(56vw, 240px);
   padding: 24px 16px;
   border-radius: var(--r-l);
-  background: rgb(255 255 255 / 0.08);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14);
+  background: rgb(255 253 248 / 0.72);
+  box-shadow: var(--shadow-m);
+  color: var(--ink);
   text-align: center;
   backdrop-filter: blur(6px);
+}
+[data-scene='terrarium'] .coming-label,
+[data-scene='home'] .coming-label {
+  color: var(--scene-accent);
+}
+[data-scene='terrarium'] .coming-card,
+[data-scene='home'] .coming-card {
+  background: rgb(255 255 255 / 0.08);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14);
+  color: var(--scene-ink);
 }
 .coming-icon {
   width: 84px;
   height: 84px;
   margin: 0 auto 12px;
   border-radius: 24px;
-  background: #8cc49a;
+  background: var(--scene-accent);
   filter: blur(8px);
   opacity: 0.75;
 }
