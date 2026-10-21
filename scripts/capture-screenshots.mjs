@@ -13,6 +13,7 @@ import sharp from 'sharp';
 /**
  * アプリごとの撮り方。
  * - start：体験版を開いたあとに押すボタン（なければ開いただけで始まる）
+ * - tidy ：始まったあとに押すボタン（使い方ガイドを小さくするなど。スクショに重ならないように）
  * - shots：撮る画面。path へ移動し、openFirst があればその一覧の最初の項目を開いてから撮る
  */
 const APPS = {
@@ -33,6 +34,17 @@ const APPS = {
       { name: '03-plant', path: '/plants', openFirst: 'a[href^="/plants/"]:not([href="/plants/new"])' },
       { name: '04-watering', path: '/watering' },
       { name: '05-calendar', path: '/calendar' },
+    ],
+  },
+  kajirima: {
+    // 使い方ガイドがスクショに重ならないよう、はじめに小さくしておく
+    tidy: '小さくする',
+    shots: [
+      { name: '01-home', path: '/' },
+      { name: '02-routine', path: '/', openFirst: 'button[aria-label="換気扇・レンジフードの詳細"]' },
+      { name: '03-add', path: '/add' },
+      { name: '04-collection', path: '/collection' },
+      { name: '05-vault', path: '/collection/vault' },
     ],
   },
 };
@@ -71,6 +83,11 @@ try {
       await page.waitForURL((u) => !u.pathname.startsWith('/login'), { timeout: 30000 });
     }
     await page.waitForTimeout(3000);
+    if (app.tidy) {
+      const btn = page.getByRole('button', { name: app.tidy });
+      if (await btn.count()) await btn.first().click();
+      await page.waitForTimeout(800);
+    }
 
     for (const shot of app.shots) {
       await page.goto(origin + shot.path, { waitUntil: 'networkidle' });
@@ -79,6 +96,14 @@ try {
         await page.waitForLoadState('networkidle');
       }
       await page.waitForTimeout(6000); // 画面の動きやヒントの表示が落ち着くまで待つ
+      if (app.tidy) {
+        // 画面を移ると開き直すことがあるので、撮る前にもう一度小さくする
+        const btn = page.getByRole('button', { name: app.tidy });
+        if (await btn.count()) {
+          await btn.first().click();
+          await page.waitForTimeout(1200);
+        }
+      }
       const png = await page.screenshot();
       const file = new URL(`${shot.name}.webp`, outDir);
       await sharp(png).webp({ quality: 82 }).toFile(fileURLToPath(file));

@@ -379,7 +379,7 @@ const shots = app.screenshots ?? [];
     align-items: flex-end;
     gap: 4px;
   }
-  .says-svg {
+  .sukeo-says :global(.says-svg) {
     flex: none;
     width: min(38vw, 200px);
     height: auto;
@@ -399,6 +399,28 @@ const shots = app.screenshots ?? [];
   @media (min-width: 640px) {
     .says-bubble {
       margin-bottom: 25%;
+    }
+  }
+  /* スマホ：吹き出しの下にすけおを置き、しっぽは下向きに */
+  @media (max-width: 639px) {
+    .sukeo-says {
+      flex-direction: column-reverse;
+      align-items: flex-start;
+      gap: 0;
+    }
+    .sukeo-says :global(.says-svg) {
+      width: min(52vw, 220px);
+    }
+    .says-bubble {
+      margin-bottom: 6px;
+    }
+    .says-bubble::after {
+      top: auto;
+      bottom: -9px;
+      left: 40px;
+      border: 10px solid transparent;
+      border-top-color: var(--paper);
+      border-bottom: 0;
     }
   }
 
