@@ -36,15 +36,16 @@ const APPS = {
       { name: '05-calendar', path: '/calendar' },
     ],
   },
-  kajirima: {
+  migaku: {
     // 使い方ガイドがスクショに重ならないよう、はじめに小さくしておく
     tidy: '小さくする',
     shots: [
       { name: '01-home', path: '/' },
-      { name: '02-routine', path: '/', openFirst: 'button[aria-label="換気扇・レンジフードの詳細"]' },
+      { name: '02-routine', path: '/', openFirst: 'button[aria-label="換気扇・レンジフード掃除の詳細"]' },
       { name: '03-add', path: '/add' },
-      { name: '04-collection', path: '/collection' },
-      { name: '05-vault', path: '/collection/vault' },
+      { name: '04-event', path: '/', openFirst: 'a[href^="/events/"]' },
+      { name: '05-decor', path: '/collection/decor' },
+      { name: '06-collection', path: '/collection' },
     ],
   },
 };
