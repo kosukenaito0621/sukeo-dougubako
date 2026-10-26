@@ -6,7 +6,7 @@ status: 公開中
 order: 3
 scene: desk
 icon: ../../assets/apps/migaku/icon.png
-trialUrl: https://kajirima.naikou7110.workers.dev/login?try=1
+trialUrl: https://kajirima.sukeo-appslab.workers.dev/login?try=1
 trialLimitations:
   - 体験版は24時間で自動的に消えます（入れたデータも残りません）
   - 家族やパートナーの招待はできません（相方役の「あいかた」さんで、みんなでの共有を体験できます）

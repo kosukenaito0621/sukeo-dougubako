@@ -14,6 +14,6 @@ export const SITE = {
   description:
     'クレステッドゲッコーの「すけお」が案内する、暮らしを楽に、豊かにする小さなWebアプリの道具箱。献立づくりや植物の世話を、ちょっとだけ楽にします。',
   /** 公開するURL（OGP画像などの絶対URLに使う）。末尾のスラッシュなし */
-  url: 'https://sukeo-dougubako.naikou7110.workers.dev',
+  url: 'https://sukeo-dougubako.sukeo-appslab.workers.dev',
   lang: 'ja',
 } as const;

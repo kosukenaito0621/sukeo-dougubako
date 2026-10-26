@@ -6,7 +6,7 @@ status: 公開中
 order: 1
 scene: kitchen
 icon: ../../assets/apps/kondate/icon.png
-trialUrl: https://kondate-app.naikou7110.workers.dev/login?try=1
+trialUrl: https://kondate-app.sukeo-appslab.workers.dev/login?try=1
 trialLimitations:
   - 体験版は24時間で自動的に消えます（入れたデータも残りません）
   - 写真の登録はできません
